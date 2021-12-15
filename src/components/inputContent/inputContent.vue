@@ -1,5 +1,7 @@
 <template>
   <div class="swc-input">
+    <div>{{ scrollTop }}</div>
+    <div>{{ scrollTop2 }}</div>
     <div
       contenteditable="true"
       class="editeDiv"
@@ -12,10 +14,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Prop } from "vue-property-decorator";
 
 @Component
 export default class HelloWorld extends Vue {
+  @Prop(Number) readonly scrollTop: number | undefined;
+  private scrollTop2: number = 0;
 
   private keyhandle(event: KeyboardEvent) {
     this.$nextTick(() => {
@@ -25,22 +29,37 @@ export default class HelloWorld extends Vue {
     });
   }
 
-  private inputBlurHandle2(event:FocusEvent) {
-    (this.$refs.setInput as HTMLElement).blur()
+  private inputBlurHandle2(event: FocusEvent) {
+    (this.$refs.setInput as HTMLElement).blur();
   }
 
-  private inputBlurHandle(event: TouchEvent) {
-    let isNotSame:boolean = (event.target as HTMLElement) !== (this.$refs.setInput as HTMLElement)
+  private inputBlurHandle(event: TouchEvent | Event) {
+    let isNotSame: boolean =
+      (event.target as HTMLElement) !== (this.$refs.setInput as HTMLElement);
     if (isNotSame) {
-      (this.$refs.setInput as HTMLElement).blur();
+      (this.$refs.setInput as HTMLElement)?.blur();
     }
   }
 
+  private handleScrollTop(event: TouchEvent) {
+    let isSame: boolean =
+      (event.target as HTMLElement) === (this.$refs.setInput as HTMLElement);
+    setTimeout(() => {
+      if (isSame) {
+        let top = document.documentElement.scrollTop;
+        this.$bus.$emit("scrollTop", 0);
+      }
+    }, 320);
+  }
+
   mounted() {
-    document.addEventListener("touchend", this.inputBlurHandle);
+    // document.addEventListener("touchmove", this.inputBlurHandle);
+    // document.addEventListener("click", this.inputBlurHandle);
+    document.addEventListener("touchend", this.handleScrollTop);
   }
   beforeDestroy() {
-    document.removeEventListener("touchend",() => {})
+    document.removeEventListener("touchmove", () => {});
+    document.removeEventListener("click", () => {});
   }
 }
 </script>
