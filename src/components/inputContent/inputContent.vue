@@ -1,7 +1,5 @@
 <template>
   <div class="swc-input">
-    <div>{{ scrollTop }}</div>
-    <div>{{ scrollTop2 }}</div>
     <div
       contenteditable="true"
       class="editeDiv"
@@ -24,7 +22,8 @@ export default class HelloWorld extends Vue {
   private keyhandle(event: KeyboardEvent) {
     this.$nextTick(() => {
       let el = event.target as HTMLElement;
-      this.$emit("input", el.innerText);
+      // this.$emit("input", el.innerText);
+      this.$bus.$emit("inputContent",el.innerText)
       el.innerText = "";
     });
   }
@@ -44,22 +43,23 @@ export default class HelloWorld extends Vue {
   private handleScrollTop(event: TouchEvent) {
     let isSame: boolean =
       (event.target as HTMLElement) === (this.$refs.setInput as HTMLElement);
-    setTimeout(() => {
-      if (isSame) {
-        let top = document.documentElement.scrollTop;
-        this.$bus.$emit("scrollTop", 0);
+      if(isSame) {
+        let ele = document.getElementById('sw_chat_content');
+        if(ele) {
+          ele.scrollTop = ele?.scrollHeight;
+        }
       }
-    }, 320);
   }
 
   mounted() {
-    // document.addEventListener("touchmove", this.inputBlurHandle);
-    // document.addEventListener("click", this.inputBlurHandle);
+    document.addEventListener("touchmove", this.inputBlurHandle);
+    document.addEventListener("click", this.inputBlurHandle);
     document.addEventListener("touchend", this.handleScrollTop);
   }
   beforeDestroy() {
     document.removeEventListener("touchmove", () => {});
     document.removeEventListener("click", () => {});
+    document.addEventListener("touchend", this.handleScrollTop);
   }
 }
 </script>
@@ -69,10 +69,11 @@ export default class HelloWorld extends Vue {
   .swc-input {
     background-color: rgb(245, 239, 239);
     width: 100vw;
-    padding: 20px 0 40px 0;
+    padding: 2vh 0 4vh 0;
     position: fixed;
     bottom: 0;
     left: 0;
+    z-index: 99;
     .editeDiv {
       display: inline-block;
       outline: none;

@@ -7658,10 +7658,10 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swallow-ui@^0.1.4:
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/swallow-ui/-/swallow-ui-0.1.4.tgz#9130b98cb27635800f4a15b099bf9643c7a00c3c"
-  integrity sha512-Bx9Ylp5fqqK+4OVyQn3BolmNRowS2pcs/21NSqkmZ5SnNtGJcL46ypdl0QxBkRfEgR1rH85Xe4HwfA/J+K2v8g==
+swallow-ui@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/swallow-ui/-/swallow-ui-0.1.5.tgz#e52a8fd64eb5130a54af0868ae061ea554b0e7d1"
+  integrity sha512-XbVGlYd4JwkRYJKHpAAULzbppcVRZLLEI/62DrErowxUBM8RWpSIM4TQBo/d3e57fgQ+qpC/lVJocyeaA23c1A==
   dependencies:
     core-js "^3.6.5"
     vue "^2.6.11"

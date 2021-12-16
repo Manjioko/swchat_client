@@ -8,7 +8,7 @@
     >
       <s-chatbox :sContent="item.content" :sSelf="item.self" />
     </div> -->
-    <topbar  />
+    <!-- <topbar  /> -->
     <!-- <input-content @input="inputTextHandle" :style="inputStyle"/> -->
 
     <chatview />
@@ -73,7 +73,7 @@ export default class Home extends Vue {
     // transform: translate3d(0,0,0);
     // background-color: rgb(95, 28, 202);
     // height: 100vh;
-    overflow-y: scroll;
+    overflow: hidden;
     // height: 30vh;
   }
   .chatboxClass {

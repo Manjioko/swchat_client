@@ -1,6 +1,6 @@
 <template>
   <div class="sw-chatview">
-    <!-- <topbar /> -->
+    <topbar />
     <chatcontent />
     <inputcontent />
   </div>
@@ -30,15 +30,16 @@ export default class Chat_view extends Vue {
 <style scoped lang="scss">
 @media screen and(max-width: 600px) {
   .sw-chatview {
-    // width: 100vw;
-    // height: 100vh;
+    width: 100vw;
+    height: 100vh;
     // height: 100%;
-    // position: absolute;
+    // position: relative;
     // left: 0;
     // right: 0;
     // top: 0;
     // bottom: 0;
     background-color: rgb(0, 218, 65);
+    overflow: hidden;
     // position: relative;
   }
 }

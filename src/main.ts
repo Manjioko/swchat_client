@@ -5,7 +5,7 @@ import router from './router'
 import swallowUI from 'swallow-ui'
 
 Vue.use(swallowUI)
-// console.log(swallowUI)
+console.log(swallowUI)
 
 Vue.config.productionTip = false
 
