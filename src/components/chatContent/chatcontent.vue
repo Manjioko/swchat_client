@@ -5,10 +5,10 @@
       :key="index + 'chartbox'"
       :class="{ chatboxClass: item.self, chatboxClass_other: !item.self }"
     >
-      <div class="s-chatbox-extend-class">
+      <div :class="{'s-chatbox-extend-con-class': item.self, 's-chatbox-extend-con-other-class': !item.self}">
         <s-chatbox :sContent="item.content" :sSelf="item.self" />
       </div>
-      <div class="s-chatbox-extend-class">
+      <div :class="{'s-chatbox-extend-img-class': item.self,'s-chatbox-extend-img-other-class': !item.self}">
         <s-avatar
           :sSrc="
             item.self
@@ -78,7 +78,7 @@ export default class Chat_content extends Vue {
     height: 78.6vh;
     position: fixed;
     top: 7vh;
-    background-color: rgb(54, 90, 85);
+    background-color: rgb(255, 255, 255);
     overflow: auto;
     padding-bottom: 3vh;
     -webkit-overflow-scrolling: touch;
@@ -89,18 +89,36 @@ export default class Chat_content extends Vue {
   }
   .chatboxClass {
     text-align: end;
-    margin-right: 20px;
-    margin-top: 20px;
+    margin: 1.3vh;
     // margin-bottom: 20px;
   }
   .chatboxClass_other {
     text-align: start;
-    margin-left: 10px;
-    margin-top: 20px;
+    margin: 1.3vh;
     // margin-bottom: 20px;
   }
-  .s-chatbox-extend-class {
-    //   display: inline;
+  .s-chatbox-extend-con-class {
+    display: inline-block;
+    margin-right: 4.3vw;
+  }
+  .s-chatbox-extend-img-class {
+    float: right;
+    user-select:none;
+    image {
+      -webkit-user-drag: none;
+    }
+  }
+
+  .s-chatbox-extend-con-other-class {
+    display: inline-block;
+    margin-left: 1.4vw;
+  }
+  .s-chatbox-extend-img-other-class {
+    float: left;
+    user-select:none;
+    image {
+      -webkit-user-drag: none;
+    }
   }
 }
 </style>

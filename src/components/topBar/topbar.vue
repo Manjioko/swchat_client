@@ -1,33 +1,78 @@
 <template>
-  <div
-  class="sw-topbar"
-  ref="sw_topbar"
-  >
+  <div class="sw-topbar" ref="sw_topbar">
+    <div class="topbar-back-class" @click="topbarBackHandle" v-show="showBack">
+      <img
+        :src="require('../../assets/back.png')"
+        alt=""
+        class="topbar-back-img-Class"
+      />
+    </div>
+    <div class="topbar-back-username-class">
+      {{ username ? username : "林清焰" }}
+    </div>
+    <div class="topbar-more-class" @click="topbarBackHandle" v-show="showMore">
+      <img
+        :src="require('../../assets/more.png')"
+        alt=""
+        class="topbar-more-img-Class"
+      />
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Vue, Prop } from "vue-property-decorator";
 
-@Component({
-})
+@Component({})
 export default class Chat_content extends Vue {
-
-  mounted() {
+  @Prop(String) readonly username: string | undefined;
+  @Prop(Boolean) readonly showBack!: boolean;
+  @Prop(Boolean) readonly showMore!: boolean;
+  private topbarBackHandle() {
+    // alert("back");
   }
+  mounted() {}
 }
 </script>
 
 <style scoped lang="scss">
 @media screen and(max-width: 600px) {
-    .sw-topbar {
-        width: 100vw;
-        height: 7vh;
-        position: fixed;
-        left: 0;
-        top: 0;
-        z-index: 99;
-        background-color: rgb(243, 240, 240);
-    }
+  .sw-topbar {
+    width: 100vw;
+    height: 7vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 99;
+    background-color: rgba(243, 240, 240, 0.596);
+  }
+  .topbar-back-img-Class {
+    width: 10vw;
+    height: 5vh;
+    float: left;
+    margin-top: 1vh;
+  }
+  .topbar-back-username-class {
+    font-size: 19px;
+    width: 60vw;
+    height: 4vh;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 1.2vh;
+    margin: auto;
+    text-align: center;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .topbar-more-img-Class {
+    width: 6vw;
+    height: 3vh;
+    float: right;
+    margin-top: 2vh;
+    margin-right: 2vh;
+  }
 }
 </style>

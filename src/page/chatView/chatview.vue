@@ -1,6 +1,6 @@
 <template>
   <div class="sw-chatview">
-    <topbar />
+    <topbar :showBack="true" :showMore="true" />
     <chatcontent />
     <inputcontent />
   </div>
@@ -38,7 +38,7 @@ export default class Chat_view extends Vue {
     // right: 0;
     // top: 0;
     // bottom: 0;
-    background-color: rgb(0, 218, 65);
+    // background-color: rgb(0, 218, 65);
     overflow: hidden;
     // position: relative;
   }
