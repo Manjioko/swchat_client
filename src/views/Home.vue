@@ -1,19 +1,30 @@
 <template>
   <div class="home">
-    <userlist />
+      <topbar username="燕语" />
+      <userlist />
+      <bottombar @bartoggle="handleBarToggleProp" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import userlist from "@/page/userList/userlist.vue"
+import topbar from "@/components/topBar/topbar.vue";
+import bottombar from "@/components/bottomBar/bottombar.vue"
 
 @Component({
   components: {
-    userlist
+    userlist,
+    topbar,
+    bottombar
   },
 })
 export default class Home extends Vue {
+  private togglePageArr: Array<Boolean> = [true, false, false];
+  private handleBarToggleProp(t: Array<Boolean>) {
+    this.togglePageArr = t
+    // console.log(t)
+  }
   mounted() {}
 }
 </script>

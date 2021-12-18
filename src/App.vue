@@ -1,6 +1,11 @@
 <template>
   <div id="app">
-    <router-view />
+    <!-- <transition name="slide"> -->
+      <keep-alive v-if="$route.meta.keepAlive">
+        <router-view />
+      </keep-alive>
+    <!-- </transition> -->
+    <router-view v-if=" !$route.meta.keepAlive" />
   </div>
 </template>
 

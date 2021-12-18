@@ -29,6 +29,7 @@ export default class Chat_content extends Vue {
   @Prop(Boolean) readonly showBack!: boolean;
   @Prop(Boolean) readonly showMore!: boolean;
   private topbarBackHandle() {
+    this.$router.go(-1)
     // alert("back");
   }
   mounted() {}
@@ -45,6 +46,8 @@ export default class Chat_content extends Vue {
     top: 0;
     z-index: 99;
     background-color: rgba(243, 240, 240, 0.596);
+    text-align: left;
+    user-select: none;
   }
   .topbar-back-img-Class {
     width: 10vw;
@@ -73,6 +76,15 @@ export default class Chat_content extends Vue {
     float: right;
     margin-top: 2vh;
     margin-right: 2vh;
+  }
+  .topbar-back-class {
+        width: 15vw;
+    height: 7vh;
+    display: inline-block;
+  }
+  .topbar-more-class {
+    // display: inline-block;
+    float: right;
   }
 }
 </style>
