@@ -1,7 +1,9 @@
 <template>
   <div class="home">
       <topbar username="燕语" />
-      <userlist />
+      <userlist v-show="togglePageArr[0]" />
+      <contactlist v-show="togglePageArr[1]" />
+      <mysetting v-show="togglePageArr[2]" />
       <bottombar @bartoggle="handleBarToggleProp" />
   </div>
 </template>
@@ -11,20 +13,24 @@ import { Component, Vue } from "vue-property-decorator";
 import userlist from "@/page/userList/userlist.vue"
 import topbar from "@/components/topBar/topbar.vue";
 import bottombar from "@/components/bottomBar/bottombar.vue"
+import contactlist from "@/page/contactsList/contactslist.vue"
+import mysetting from "@/page/mySetting/mysetting.vue"
 
 @Component({
   components: {
     userlist,
     topbar,
-    bottombar
+    bottombar,
+    contactlist,
+    mysetting
   },
 })
 export default class Home extends Vue {
   private togglePageArr: Array<Boolean> = [true, false, false];
   private handleBarToggleProp(t: Array<Boolean>) {
     this.togglePageArr = t
-    // console.log(t)
   }
+  updated() {}
   mounted() {}
 }
 </script>

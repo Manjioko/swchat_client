@@ -1,7 +1,12 @@
 <template>
   <div>
     <div class="sw-userlist">
-      <div class="sw-userlist-outLevel-class" v-for="x in 30" :key="x" @click="handleGotoChatContent">
+      <div
+        class="sw-userlist-outLevel-class"
+        v-for="x in 30"
+        :key="x"
+        @click="handleGotoChatContent"
+      >
         <div class="sw-userlist-avatar-class">
           <s-avatar
             :sSrc="require('../../assets/avatar_other.jpg')"
@@ -31,8 +36,6 @@ import { Component, Vue, Prop } from "vue-property-decorator";
   components: {},
 })
 export default class Chat_content extends Vue {
-
-  private dd: Array<any> = [1,3,34,5,67,3]
   private handleGotoChatContent() {
     this.$router.push("/chatview");
   }
@@ -52,19 +55,10 @@ export default class Chat_content extends Vue {
       now.toTimeString().substr(0, 8)
     );
   }
-  beforeCreate() {
-    console.log("xxxxxxxxxxxxxxxxxxxxxxx")
-  }
-  created() {
-    console.log("ddddddddddddddddddddd")
-    // alert("ddddddddddddddddddddd")
-  }
-  beforeMount() {
-    console.log("ccccccccccccccccccccccccccc")
-  }
-  mounted() {
-    // console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxx")
-  }
+  beforeCreate() {}
+  created() {}
+  beforeMount() {}
+  mounted() {}
 }
 </script>
 
