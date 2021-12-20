@@ -22,34 +22,35 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Route } from "vue-router";
 
 interface ChatBoxtype {
   readonly time: number;
   readonly content: string;
-  readonly self: boolean;
+  self: boolean;
 }
 
 @Component({})
 export default class Chat_content extends Vue {
   private chatArr: Array<ChatBoxtype> = [
-    { time: 1, content: "这是一首无情的歌", self: false },
-    { time: 2, content: "这是一首有情的歌", self: true },
-    { time: 3, content: "这是一首歌🎙🎶🎵", self: false },
-    { time: 3, content: "这是一首歌🎹👴", self: false },
-    { time: 3, content: "这是一首歌", self: false },
-    { time: 3, content: "这根本不是一首歌", self: true },
-    { time: 3, content: "这是啥歌", self: true },
-    { time: 3, content: "这是一首歌", self: false },
-    { time: 3, content: "这歌是乱唱的吧", self: true },
-    { time: 3, content: "这是一首歌", self: false },
-    { time: 3, content: "这是🎤🎤🎻", self: true },
-    { time: 3, content: "我叼", self: false },
-    { time: 3, content: "啥啊这是", self: true },
-    { time: 3, content: "来个表情", self: false },
-    { time: 3, content: "😂在💋", self: false },
-    { time: 3, content: "👀", self: true },
-    { time: 3, content: "狗东西🐕‍🦺", self: false },
+    // { time: 1, content: "这是一首无情的歌", self: false },
+    // { time: 2, content: "这是一首有情的歌", self: true },
+    // { time: 3, content: "这是一首歌🎙🎶🎵", self: false },
+    // { time: 3, content: "这是一首歌🎹👴", self: false },
+    // { time: 3, content: "这是一首歌", self: false },
+    // { time: 3, content: "这根本不是一首歌", self: true },
+    // { time: 3, content: "这是啥歌", self: true },
+    // { time: 3, content: "这是一首歌", self: false },
+    // { time: 3, content: "这歌是乱唱的吧", self: true },
+    // { time: 3, content: "这是一首歌", self: false },
+    // { time: 3, content: "这是🎤🎤🎻", self: true },
+    // { time: 3, content: "我叼", self: false },
+    // { time: 3, content: "啥啊这是", self: true },
+    // { time: 3, content: "来个表情", self: false },
+    // { time: 3, content: "😂在💋", self: false },
+    // { time: 3, content: "👀", self: true },
+    // { time: 3, content: "狗东西🐕‍🦺", self: false },
   ];
 
   mounted() {
@@ -60,12 +61,27 @@ export default class Chat_content extends Vue {
         self: true,
       };
       this.chatArr.push(text);
+      this.$socket.emit("otherSendMsg",text)
+    });
+    this.sockets.subscribe("otherSendMsg", (e: ChatBoxtype) => {
+      console.log(e);
+      e.self = false
+      this.chatArr.push(e)
     });
   }
   updated() {
     let ele = document.getElementById("sw_chat_content");
     if (ele) {
       ele.scrollTop = ele?.scrollHeight;
+    }
+  }
+  @Watch("$route")
+  routerhandle(e: Route) {
+    // 解决 IOS 滚动僵住的问题
+    if(e.name == "ChatView") {
+      let ele: HTMLElement | null = document.getElementById("sw_chat_content")
+      if(ele)
+        ele.scrollTop = 1
     }
   }
 }

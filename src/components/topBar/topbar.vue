@@ -17,6 +17,7 @@
         class="topbar-more-img-Class"
       />
     </div>
+    <slot></slot>
   </div>
 </template>
 

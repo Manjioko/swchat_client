@@ -21,9 +21,13 @@ import topbar from "@/components/topBar/topbar.vue";
 })
 export default class Chat_view extends Vue {
 
-  private scrollTop: number = 0
-
-  mounted() {}
+  mounted() {
+    this.sockets.subscribe("connect", () => {
+      console.log("success!!!");
+      // this.$socket.emit("otherSendMsg", "hi server");
+    });
+    // socket.emit()
+  }
 }
 </script>
 

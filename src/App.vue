@@ -16,7 +16,11 @@ body {
   // background-color: red;
   // transform: translate(0,0);
   // transform: translate3d(0,0,0);
-  // overflow-y: scroll;
+  overflow: hidden;
+}
+
+#document {
+  overflow: hidden;
 }
 
 #app {
@@ -25,6 +29,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  overflow: hidden;
 }
 
 #nav {

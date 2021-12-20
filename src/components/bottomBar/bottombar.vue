@@ -52,7 +52,7 @@
         <img
           :src="
             this.barToggle[2]
-              ? require('../../assets/my_click.png')
+              ? require('../../assets/my_clicked.png')
               : require('../../assets/my.png')
           "
           alt="my"

@@ -1,9 +1,10 @@
 <template>
   <div>
-    <div class="sw-userlist">
+    <div class="sw-userlist" id="sw_userlist">
+      <!-- <div id="xxxxxx"></div> -->
       <div
         class="sw-userlist-outLevel-class"
-        v-for="x in 30"
+        v-for="x in 15"
         :key="x"
         @click="handleGotoChatContent"
       >
@@ -30,13 +31,17 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
+import { Route } from "vue-router";
 
 @Component({
   components: {},
 })
 export default class Chat_content extends Vue {
   private handleGotoChatContent() {
+    let ele: HTMLElement | null = document.getElementById("sw_userlist");
+    let scrolltop: string = ele?.scrollTop.toString() ?? "";
+    sessionStorage.setItem("st", scrolltop);
     this.$router.push("/chatview");
   }
 
@@ -55,10 +60,17 @@ export default class Chat_content extends Vue {
       now.toTimeString().substr(0, 8)
     );
   }
-  beforeCreate() {}
-  created() {}
-  beforeMount() {}
-  mounted() {}
+  mounted() {
+    let ele: HTMLElement | null = document.getElementById("sw_userlist");
+    if (ele) ele.scrollTop = parseInt(sessionStorage.getItem("st") ?? "1");
+  }
+  @Watch("$route")
+  routerhandle(e: Route) {
+    if (e.name == "Home") {
+      let ele: HTMLElement | null = document.getElementById("sw_userlist");
+      if (ele) ele.scrollTop = parseInt(sessionStorage.getItem("st") ?? "0");
+    }
+  }
 }
 </script>
 
