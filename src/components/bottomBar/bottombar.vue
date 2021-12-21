@@ -110,15 +110,14 @@ export default class Chat_content extends Vue {
     -webkit-tap-highlight-color: transparent;
   }
   .sw-bottombar-icon-size-class {
-    width: 7.2vw;
-    height: 3.8vh;
+    width: 7vw;
+    height: 3.5vh;
   }
   .sw-bottombar-imgfontsize-class {
     font-size: 10px;
-    //   color: #1296db;
   }
   .sw-bottombar-textchangedcolor-class {
-    color: #1296db;
+    color: #ff8378;
   }
   .sw-bottombar-iconParentNode-class {
     width: 20vw;

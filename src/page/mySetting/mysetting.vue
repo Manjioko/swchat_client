@@ -8,10 +8,11 @@
             :sWidth="80"
             :sHeight="80"
           />
+          <input type="file" id="sw_mysetting_img_upload" class="sw_mysetting_img_upload" accept="image/*" @change="handleImageUpload">
         </div>
 
         <div class="sw-mysetting-text-class">
-          <div>林清焰💯</div>
+          <div>{{username}}</div>
         </div>
         <div class="sw-mysetting-id-class">
           <span>ID: </span>
@@ -67,6 +68,29 @@ import { Component, Vue, Prop } from "vue-property-decorator";
   components: {},
 })
 export default class Chat_content extends Vue {
+  private username: string = localStorage.getItem("username") ?? ""
+  private handleImageUpload(e:any) {
+    let ele =<HTMLInputElement>document.getElementById("sw_mysetting_img_upload")
+    if(ele.files) {
+      let file: any = ele.files[0]
+      console.log(file)
+      const formData = new FormData();
+      formData.append("file", ele.files[0]);
+      const url = "http://47.242.27.76:3000/test";
+      const resp = fetch(url, {
+                method: "POST",
+                body: formData //自动修改请求头,formdata的默认请求头的格式是 multipart/form-data
+            }).then(res => {
+              if(res.ok) {
+                console.log(res)
+              }
+            })
+
+      // console.log(ele.files)
+    }
+    // console.log(ele.files[0]!)
+
+  }
   private handleGotoChatContent() {
     // this.$router.push("/chatview");
   }
@@ -154,6 +178,16 @@ $barBackgroundColor: #e5ecef;
   .sw-mysetting-setting-class {
       @extend .sw-mysetting-collect-class;
       margin-top: 2px;
+  }
+  .sw_mysetting_img_upload {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 80px;
+    height: 80px;
+    background: red;
+    margin: 1.2vh;
+    opacity: 0;
   }
 }
 </style>

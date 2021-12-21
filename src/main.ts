@@ -12,7 +12,7 @@ Vue.use(swallowUI)
 Vue.use(new VueSocketIO(
   {
     debug: true,
-    connection: SocketIO('http://192.168.100.28:3000', {
+    connection: SocketIO('ws://47.242.27.76:3000', {
       autoConnect: true,                //启动自从自动连接
       secure: true,
       transports: ['websocket'],        // ['websocket', 'polling']
