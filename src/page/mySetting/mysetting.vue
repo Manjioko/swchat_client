@@ -4,7 +4,7 @@
       <div class="sw-mysetting-settingbar-class">
         <div class="sw-mysetting-avatar-class">
           <s-avatar
-            :sSrc="require('../../assets/avatar_other.jpg')"
+            :sSrc="avatarPath? avatarPath : require('../../assets/avatar_other.jpg')"
             :sWidth="80"
             :sHeight="80"
           />
@@ -69,21 +69,25 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 })
 export default class Chat_content extends Vue {
   private username: string = localStorage.getItem("username") ?? ""
+  private avatarPath: string = ""
   private handleImageUpload(e:any) {
     let ele =<HTMLInputElement>document.getElementById("sw_mysetting_img_upload")
     if(ele.files) {
       let file: any = ele.files[0]
       console.log(file)
       const formData = new FormData();
-      formData.append("file", ele.files[0]);
+      formData.append("key", ele.files[0]);
       const url = "http://47.242.27.76:3000/test";
       const resp = fetch(url, {
                 method: "POST",
                 body: formData //自动修改请求头,formdata的默认请求头的格式是 multipart/form-data
             }).then(res => {
-              if(res.ok) {
-                console.log(res)
-              }
+              res.json().then(res => {
+                  console.log(res)
+                  if(res.success) {
+                    this.avatarPath = res.path
+                  }
+                })
             })
 
       // console.log(ele.files)
