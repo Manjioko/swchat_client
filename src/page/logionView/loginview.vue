@@ -1,41 +1,85 @@
 <template>
-<div>
-  <div class="loginview-logintext-class">登陆燕语</div>
-  <div class="LoginView">
-    <div class="loginview-loginmsg-layout-class">
-      <div class="loginview-loginmsg-class">
-        <span class="loginview-text-class">账号</span>
-        <input type="text" v-model="username" class="loginview-logininput-class" />
-      </div>
+  <div>
+    <div class="loginview-logintext-class">登陆燕语</div>
+    <div class="LoginView">
+      <div class="loginview-loginmsg-layout-class">
+        <div class="loginview-loginmsg-class">
+          <span class="loginview-text-class">账号</span>
+          <input
+            type="text"
+            v-model="username"
+            class="loginview-logininput-class"
+          />
+        </div>
 
-      <div class="loginview-loginmsg-class">
-        <span class="loginview-text-class">密码</span>
-        <input type="password" v-model="password" class="loginview-logininput-class" />
-      </div>
-      <div class="loginview-login-submit-class">
-        <button class="loginview-login-submit-button-class" @click="handleSubmit">登陆/注册</button>
+        <div class="loginview-loginmsg-class">
+          <span class="loginview-text-class">密码</span>
+          <input
+            type="password"
+            v-model="password"
+            class="loginview-logininput-class"
+          />
+        </div>
+        <div class="loginview-login-submit-class">
+          <button
+            class="loginview-login-submit-button-class"
+            @click="handleSubmit"
+          >
+            登陆/注册
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import uniqueId from "@/utils/uniqueid";
 
 @Component({
   components: {},
 })
 export default class LoginView extends Vue {
-  private username: string = ''
-  private password: string = ''
+  private username: string = "";
+  private password: string = "";
   private handleSubmit() {
-    if(!this.username || !this.password) {
-      alert("账号或密码还未输入")
+    if (!this.username || !this.password) {
+      alert("账号或密码还未输入");
     } else {
-      localStorage.setItem("username",this.username)
-      localStorage.setItem("password", this.password)
-      this.$router.replace("/home")
+      this.$axios
+        .post("http://47.242.27.76:3000/registerandlogin", {
+          username: this.username,
+          password: this.password,
+        })
+        .then((response: any) => {
+          let { success, userid, check, correct } = response.data;
+          // 创建新用户
+          if (success) {
+            localStorage.setItem("username", this.username);
+            localStorage.setItem("password", this.password);
+            localStorage.setItem("userid", userid);
+            alert(`用户 ${this.username} 创建成功`)
+            this.$router.replace("/home");
+          }
+          // 账号密码正确
+          else if(check && correct) {
+            localStorage.setItem("username", this.username);
+            localStorage.setItem("password", this.password);
+            localStorage.setItem("userid", userid);
+            this.$router.replace("/home");
+          }
+          // 账号或密码错误
+          else if(check && !correct) {
+            alert('账号或密码错误,请重新登陆')
+          }
+          else {
+            alert('注册账号失败,请联系管理员')
+          }
+        })
+        .catch((error: any) => {
+          console.log(error);
+        });
     }
   }
 }
@@ -65,7 +109,7 @@ export default class LoginView extends Vue {
   .loginview-loginmsg-layout-class {
     background: #fff;
     height: 22vh;
-    min-height: 200px;;
+    min-height: 200px;
     border-radius: 10px;
     width: 93vw;
     box-shadow: 3px 2px 10px #afaeae;
@@ -99,6 +143,5 @@ export default class LoginView extends Vue {
     margin: 10px;
     font-size: 30px;
   }
-  
 }
 </style>

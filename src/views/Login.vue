@@ -18,8 +18,12 @@ export default class Login extends Vue {
     beforeCreate() {
         let username: string | null = localStorage.getItem("username")
         let password: string | null =  localStorage.getItem("password")
-        if(username && password) {
-            this.$router.replace("/home")
+        let userid: string | null = localStorage.getItem("userid")
+        if(username && password && userid) {
+            // localStorage.setItem("username",'')
+            // localStorage.setItem("password",'')
+            // console.log(username)
+            // this.$router.replace("/home")
             // console.log("nothing")
         }
     }

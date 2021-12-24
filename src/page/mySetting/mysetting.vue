@@ -4,22 +4,30 @@
       <div class="sw-mysetting-settingbar-class">
         <div class="sw-mysetting-avatar-class">
           <s-avatar
-            :sSrc="avatarPath? avatarPath : require('../../assets/avatar_other.jpg')"
+            :sSrc="
+              avatarPath ? avatarPath : require('../../assets/avatar_other.jpg')
+            "
             :sWidth="80"
             :sHeight="80"
           />
-          <input type="file" id="sw_mysetting_img_upload" class="sw_mysetting_img_upload" accept="image/*" @change="handleImageUpload">
+          <input
+            type="file"
+            id="sw_mysetting_img_upload"
+            class="sw_mysetting_img_upload"
+            accept="image/*"
+            @change="handleImageUpload"
+          />
         </div>
 
         <div class="sw-mysetting-text-class">
-          <div>{{username}}</div>
+          <div>{{ username }}</div>
         </div>
         <div class="sw-mysetting-id-class">
           <span>ID: </span>
           <span>LingQingYan</span>
         </div>
       </div>
-        <!-- collect -->
+      <!-- collect -->
       <div class="sw-mysetting-collect-class">
         <div class="sw-mysetting-bar-start">
           <img
@@ -37,7 +45,7 @@
           />
         </div>
       </div>
-        <!-- setting -->
+      <!-- setting -->
       <div class="sw-mysetting-setting-class">
         <div class="sw-mysetting-bar-start">
           <img
@@ -56,7 +64,6 @@
           />
         </div>
       </div>
-
     </div>
   </div>
 </template>
@@ -68,38 +75,76 @@ import { Component, Vue, Prop } from "vue-property-decorator";
   components: {},
 })
 export default class Chat_content extends Vue {
-  private username: string = localStorage.getItem("username") ?? ""
-  private avatarPath: string = ""
-  private handleImageUpload(e:any) {
-    let ele =<HTMLInputElement>document.getElementById("sw_mysetting_img_upload")
-    if(ele.files) {
-      let file: any = ele.files[0]
-      console.log(file)
+  private username: string = localStorage.getItem("username") ?? "";
+  private userid: string = localStorage.getItem("userid") ?? "";
+  // private avatarPath: string = `http://47.242.27.76:3000/public/${this.userid}/avatar/${this.userid}_avatar.jpg`;
+  private avatarPath: string = "";
+
+  private handleImageUpload(e: any) {
+    let ele = <HTMLInputElement>(
+      document.getElementById("sw_mysetting_img_upload")
+    );
+    if (ele.files) {
+      let file: any = ele.files[0];
+      console.log(file);
       const formData = new FormData();
       formData.append("key", ele.files[0]);
       const url = "http://47.242.27.76:3000/test";
-      const resp = fetch(url, {
-                method: "POST",
-                body: formData //自动修改请求头,formdata的默认请求头的格式是 multipart/form-data
-            }).then(res => {
-              res.json().then(res => {
-                  console.log(res)
-                  if(res.success) {
-                    this.avatarPath = res.path
-                  }
-                })
-            })
+      // const resp = fetch(url, {
+      //           method: "POST",
+      //           body: formData //自动修改请求头,formdata的默认请求头的格式是 multipart/form-data
+      //       }).then(res => {
+      //         res.json().then(res => {
+      //             console.log(res)
+      //             if(res.success) {
+      //               this.avatarPath = res.path
+      //             }
+      //           })
+      //       })
+      this.$axios
+        .post(url, formData)
+        .then(function (response: any) {
+          console.log(response);
+        })
+        .catch(function (error: any) {
+          console.log(error);
+        });
 
       // console.log(ele.files)
     }
     // console.log(ele.files[0]!)
-
   }
   private handleGotoChatContent() {
     // this.$router.push("/chatview");
   }
 
-  beforeCreate() {}
+  beforeCreate() {
+    let userid: string = localStorage.getItem("userid") ?? "";
+    let picUrl: string = `/public/${userid}/avatar/${userid}_avatar.jpg`;
+    // let reader = new FileReader();
+    // reader.onload = (e: any) => {
+    //   this.avatarPath = e.target.result;
+    // };
+    // this.$axios.get(picUrl, { responseType: "blob" }).then((res: any) => {
+    //   reader.readAsDataURL(res);
+    // });
+
+    this.$axios
+      .get(picUrl, { responseType: "blob", emulateJSON: true })
+      .then((res: any) => {
+        if (res.data) {
+          // return Promise.resolve(res.data);
+          this.avatarPath = window.URL.createObjectURL(res.data)
+        } else {
+          this.avatarPath = require('../../assets/avatar_other.jpg')
+          // throw res;
+        }
+      })
+      .catch((err: any) => {
+        console.log(err)
+        // return Promise.reject(err);
+      });
+  }
   created() {}
   beforeMount() {}
   mounted() {}
@@ -180,8 +225,8 @@ $barBackgroundColor: #e5ecef;
     font-size: 18px;
   }
   .sw-mysetting-setting-class {
-      @extend .sw-mysetting-collect-class;
-      margin-top: 2px;
+    @extend .sw-mysetting-collect-class;
+    margin-top: 2px;
   }
   .sw_mysetting_img_upload {
     position: absolute;

@@ -7,6 +7,8 @@ import swallowUI from 'swallow-ui'
 import SocketIO from 'socket.io-client'
 import VueSocketIO from 'vue-socket.io'
 
+const axios = require('axios').default
+
 Vue.use(swallowUI)
 // console.log(swallowUI)
 Vue.use(new VueSocketIO(
@@ -29,6 +31,9 @@ Vue.config.productionTip = false
 
 
 Vue.prototype.$bus = new Vue()
+
+// axios
+Vue.prototype.$axios = axios
 
 new Vue({
   router,
