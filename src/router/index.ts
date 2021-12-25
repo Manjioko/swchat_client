@@ -19,7 +19,7 @@ const routes: Array<RouteConfig> = [
     path: '/home',
     name: 'Home',
     meta: {
-      index: 0,
+      index: 1,
       keepAlive: true,
     },
     component: () => import(/* webpackChunkName: "about" */ '../views/Home.vue')
@@ -28,7 +28,7 @@ const routes: Array<RouteConfig> = [
     path: '/about',
     name: 'About',
     meta: {
-      index: 1,
+      index: 2,
       keepAlive: true,
     },
     // route level code-splitting
@@ -40,10 +40,19 @@ const routes: Array<RouteConfig> = [
     path: '/chatview',
     name: 'ChatView',
     meta: {
-      index: 2,
+      index: 3,
       keepAlive: true,
     },
     component: () => import('../page/chatView/chatview.vue')
+  },
+  {
+    path: '/getfriend',
+    name: 'GetFriend',
+    meta: {
+      index: 4,
+      keepAlive: false,
+    },
+    component: () => import('../page/getFriend/getfriend.vue')
   }
 ]
 

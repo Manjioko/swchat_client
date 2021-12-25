@@ -5,7 +5,7 @@
         <div class="sw-mysetting-avatar-class">
           <s-avatar
             :sSrc="
-              avatarPath ? avatarPath : require('../../assets/avatar_other.jpg')
+              avatarPath
             "
             :sWidth="80"
             :sHeight="80"
@@ -77,7 +77,6 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 export default class Chat_content extends Vue {
   private username: string = localStorage.getItem("username") ?? "";
   private userid: string = localStorage.getItem("userid") ?? "";
-  // private avatarPath: string = `http://47.242.27.76:3000/public/${this.userid}/avatar/${this.userid}_avatar.jpg`;
   private avatarPath: string = "";
 
   private handleImageUpload(e: any) {
@@ -89,7 +88,7 @@ export default class Chat_content extends Vue {
       console.log(file);
       const formData = new FormData();
       formData.append("key", ele.files[0]);
-      const url = "http://47.242.27.76:3000/test";
+      const url = this.$api.test;
       // const resp = fetch(url, {
       //           method: "POST",
       //           body: formData //自动修改请求头,formdata的默认请求头的格式是 multipart/form-data
@@ -119,8 +118,7 @@ export default class Chat_content extends Vue {
   }
 
   beforeCreate() {
-    let userid: string = localStorage.getItem("userid") ?? "";
-    let picUrl: string = `/public/${userid}/avatar/${userid}_avatar.jpg`;
+    
     // let reader = new FileReader();
     // reader.onload = (e: any) => {
     //   this.avatarPath = e.target.result;
@@ -128,26 +126,12 @@ export default class Chat_content extends Vue {
     // this.$axios.get(picUrl, { responseType: "blob" }).then((res: any) => {
     //   reader.readAsDataURL(res);
     // });
-
-    this.$axios
-      .get(picUrl, { responseType: "blob", emulateJSON: true })
-      .then((res: any) => {
-        if (res.data) {
-          // return Promise.resolve(res.data);
-          this.avatarPath = window.URL.createObjectURL(res.data)
-        } else {
-          this.avatarPath = require('../../assets/avatar_other.jpg')
-          // throw res;
-        }
-      })
-      .catch((err: any) => {
-        console.log(err)
-        // return Promise.reject(err);
-      });
   }
   created() {}
   beforeMount() {}
-  mounted() {}
+  mounted() {
+    this.avatarPath = localStorage.getItem("avatarPath") as string;
+  }
 }
 </script>
 

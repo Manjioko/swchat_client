@@ -48,7 +48,7 @@ export default class LoginView extends Vue {
       alert("账号或密码还未输入");
     } else {
       this.$axios
-        .post("http://47.242.27.76:3000/registerandlogin", {
+        .post(this.$api.registerandlogin, {
           username: this.username,
           password: this.password,
         })

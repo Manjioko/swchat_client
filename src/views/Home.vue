@@ -5,7 +5,7 @@
           <div class="home-topbar-extend-component-adddiv" v-show="showaddPlus">
             <img :src="require('../assets/addplus.png')" alt="addplus">
           </div>
-          <div class="home-topbar-extend-component-adddiv" v-show="showadd">
+          <div class="home-topbar-extend-component-adddiv" v-show="showadd" @click="goToGetFriendView">
             <img :src="require('../assets/add.png')" alt="add">
           </div>
         </div>
@@ -39,6 +39,7 @@ export default class Home extends Vue {
   private username: string = "燕语"
   private showadd: boolean = false
   private showaddPlus: boolean = true
+  private avatarPath: string = "";
   private handleBarToggleProp(t: Array<Boolean>) {
     this.togglePageArr = t
     if(t[0]) {
@@ -55,8 +56,33 @@ export default class Home extends Vue {
       this.showadd = false
     }
   }
+  private goToGetFriendView() {
+    this.$router.push("/getfriend")
+  }
   updated() {}
-  mounted() {}
+  // mounted() {}
+  mounted() {
+    let userid: string = localStorage.getItem("userid") ?? "";
+    let picUrl: string = `/public/${userid}/avatar/${userid}_avatar.jpg`;
+    this.$axios
+      .get(picUrl, { responseType: "blob", emulateJSON: true })
+      .then((res: any) => {
+        if (res.data) {
+          // return Promise.resolve(res.data);
+          this.avatarPath = window.URL.createObjectURL(res.data)
+          localStorage.setItem("avatarPath",this.avatarPath)
+        } else {
+          this.avatarPath = require('../assets/default_avatar.png')
+          localStorage.setItem("avatarPath",this.avatarPath)
+          // throw res;
+        }
+      })
+      .catch((err: any) => {
+        this.avatarPath = require('../assets/default_avatar.png')
+        localStorage.setItem("avatarPath",this.avatarPath)
+        console.log(err)
+      });
+  }
 }
 </script>
 

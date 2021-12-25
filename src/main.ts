@@ -7,6 +7,9 @@ import swallowUI from 'swallow-ui'
 import SocketIO from 'socket.io-client'
 import VueSocketIO from 'vue-socket.io'
 
+import ApiUrl from './utils/apiUrl'
+// console.log(new ApiUrl())
+
 const axios = require('axios').default
 
 Vue.use(swallowUI)
@@ -14,7 +17,7 @@ Vue.use(swallowUI)
 Vue.use(new VueSocketIO(
   {
     debug: true,
-    connection: SocketIO('ws://47.242.27.76:3000', {
+    connection: SocketIO( new ApiUrl().rootUrl, {
       autoConnect: true,                //启动自从自动连接
       secure: true,
       transports: ['websocket'],        // ['websocket', 'polling']
@@ -31,6 +34,7 @@ Vue.config.productionTip = false
 
 
 Vue.prototype.$bus = new Vue()
+Vue.prototype.$api = new ApiUrl()
 
 // axios
 Vue.prototype.$axios = axios
