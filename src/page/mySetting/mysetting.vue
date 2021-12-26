@@ -24,7 +24,7 @@
         </div>
         <div class="sw-mysetting-id-class">
           <span>ID: </span>
-          <span>LingQingYan</span>
+          <span>{{userid}}</span>
         </div>
       </div>
       <!-- collect -->
@@ -77,7 +77,7 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 export default class Chat_content extends Vue {
   private username: string = localStorage.getItem("username") ?? "";
   private userid: string = localStorage.getItem("userid") ?? "";
-  private avatarPath: string = "";
+  private avatarPath: string = `${this.$api.rootUrl}/public/${this.userid}/avatar/${this.userid}_avatar.jpg`;
 
   private handleImageUpload(e: any) {
     let ele = <HTMLInputElement>(
@@ -88,6 +88,7 @@ export default class Chat_content extends Vue {
       console.log(file);
       const formData = new FormData();
       formData.append("key", ele.files[0]);
+      // formData.append("name","hello wolrd")
       const url = this.$api.test;
       // const resp = fetch(url, {
       //           method: "POST",
@@ -101,7 +102,7 @@ export default class Chat_content extends Vue {
       //           })
       //       })
       this.$axios
-        .post(url, formData)
+        .post(url, formData,{username:"hello world"})
         .then(function (response: any) {
           console.log(response);
         })
@@ -130,7 +131,7 @@ export default class Chat_content extends Vue {
   created() {}
   beforeMount() {}
   mounted() {
-    this.avatarPath = localStorage.getItem("avatarPath") as string;
+    // this.avatarPath = localStorage.getItem("avatarPath") as string;
   }
 }
 </script>
@@ -180,6 +181,10 @@ $barBackgroundColor: #e5ecef;
     margin-left: 13px;
     margin-top: 5px;
     color: #7a7a7a;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 70vw;
   }
   .sw-mysetting-collect-class {
     background: $barBackgroundColor;

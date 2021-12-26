@@ -3,11 +3,18 @@ class ApiUrl {
     test: string;
     getFriend: string;
     registerandlogin: string;
+    getMyfriendList: string;
     constructor() {
-        this.rootUrl = "http://203.174.57.179:3000/"
-        this.test = `${this.rootUrl}test`
-        this.getFriend = `${this.rootUrl}getfriend`
-        this.registerandlogin = `${this.rootUrl}registerandlogin`
+        // http://203.174.57.179:3000/
+        this.rootUrl = "http://203.174.57.179:3000"
+        // /test
+        this.test = `${this.rootUrl}/test`
+        // /getfriend
+        this.getFriend = `${this.rootUrl}/getfriend`
+        // /registerandlogin
+        this.registerandlogin = `${this.rootUrl}/registerandlogin`
+        // /getmyfriendlist
+        this.getMyfriendList = `${this.rootUrl}/getmyfriendlist`
     }
 }
 

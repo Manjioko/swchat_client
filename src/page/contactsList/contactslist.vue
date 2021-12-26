@@ -2,19 +2,18 @@
   <div>
     <div class="sw-contactslist">
       <div
-        class="sw-contactslist-outLevel-class"
-        @click="handleGotoChatContent"
-        v-for="x in 5"
-        :key="x"
+        class="sw-contactslist-outLevel-class"  
+        v-for="user in userArr"
+        :key="user.userid"
       >
         <div class="sw-contactslist-avatar-class">
           <s-avatar
-            :sSrc="require('../../assets/avatar_other.jpg')"
+            :sSrc="user.avatar"
           />
         </div>
 
         <div class="sw-contactslist-text-class">
-          <div>林清焰</div>
+          <div>{{user.username}}</div>
         </div>
       </div>
     </div>
@@ -24,15 +23,35 @@
 <script lang="ts">
 import { Component, Vue, Prop } from "vue-property-decorator";
 
+interface userArrStruct {
+  readonly username: String,
+  readonly userid: String,
+  readonly avatar: String
+}
+
 @Component({
   components: {},
 })
 export default class Chat_content extends Vue {
-  private handleGotoChatContent() {
-    // this.$router.push("/chatview");
-  }
 
-  beforeCreate() {}
+  
+
+  private userArr: Array<userArrStruct> = [] 
+
+  beforeCreate() {
+    this.$axios
+        .post(this.$api.getMyfriendList, {
+            userid: localStorage.getItem("userid")
+        })
+        .then((response: any) => {
+          console.log(`用户好友列表: ${response.data}`)
+          this.userArr = response.data
+          console.log(response)
+        })
+        .catch((error: any) => {
+          console.log(error);
+        });
+  }
   created() {}
   beforeMount() {}
   mounted() {}
