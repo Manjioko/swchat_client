@@ -23,7 +23,7 @@ export default class Login extends Vue {
             // localStorage.setItem("username",'')
             // localStorage.setItem("password",'')
             // console.log(username)
-            // this.$router.replace("/home")
+            this.$router.replace("/home")
             // console.log("nothing")
         }
     }

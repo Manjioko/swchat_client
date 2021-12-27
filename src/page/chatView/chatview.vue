@@ -1,7 +1,7 @@
 <template>
   <div class="sw-chatview">
     <topbar :showBack="true" :showMore="true" :username="username" />
-    <chatcontent />
+    <chatcontent :myAvatar="myAvatar" :clientAvatar="clientAvatar" :roomid="roomid" />
     <inputcontent />
   </div>
 </template>
@@ -23,6 +23,9 @@ import { Route } from "vue-router";
 export default class Chat_view extends Vue {
   // private params:any = this.$route.params
   private username: string = "";
+  private myAvatar: string = "";
+  private clientAvatar: string = "";
+  private roomid:string | null = null;
 
   @Watch("$route")
   routerhandle(e: Route) {
@@ -35,32 +38,42 @@ export default class Chat_view extends Vue {
     this.username = e.params?.username ?? "";
     let myid: string = localStorage.getItem("userid") as string;
     let clientid: string = e.params.clientid;
-    let roomid: string = myid > clientid ? myid + clientid : clientid + myid;
     if (e.name === "ChatView") {
+      let roomid: string = myid > clientid ? myid + clientid : clientid + myid;
+      sessionStorage.setItem("roomid", roomid);
+      // 头像
+      this.myAvatar = `${this.$api.rootUrl}/public/${myid}/avatar/${myid}_avatar.jpg`;
+      this.clientAvatar = `${this.$api.rootUrl}/public/${clientid}/avatar/${clientid}_avatar.jpg`;
+      this.roomid = roomid
+
       this.$socket.emit("createPrivateChatRoom", {
         myid: myid,
         clientid: clientid,
         roomid: roomid,
       });
     } else {
+      // console.log(sessionStorage.getItem("roomid"))
       this.$socket.emit("deletePrivateChatRoom", {
-        myid: myid,
-        clientid: clientid,
-        roomid: roomid,
+        roomid: sessionStorage.getItem("roomid"),
       });
     }
-    console.log(e);
   }
 
   mounted() {
     let params = this.$route.params;
     this.username = params.username;
-    let myid:string = localStorage.getItem("userid") as string
-    let clientid: string = params.clientid
+    let myid: string = localStorage.getItem("userid") as string;
+    let clientid: string = params.clientid;
+    let roomid: string = myid > clientid ? myid + clientid : clientid + myid;
+    // 头像
+    this.myAvatar = `${this.$api.rootUrl}/public/${myid}/avatar/${myid}_avatar.jpg`;
+    this.clientAvatar = `${this.$api.rootUrl}/public/${clientid}/avatar/${clientid}_avatar.jpg`;
+
+    sessionStorage.setItem("roomid", roomid);
     this.$socket.emit("createPrivateChatRoom", {
       myid: myid,
       clientid: clientid,
-      roomid: myid > clientid ? myid+clientid : clientid + myid,
+      roomid: roomid,
     });
     // console.log(params);
     this.sockets.subscribe("connect", () => {

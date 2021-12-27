@@ -5,17 +5,21 @@
       :key="index + 'chartbox'"
       :class="{ chatboxClass: item.self, chatboxClass_other: !item.self }"
     >
-      <div :class="{'s-chatbox-extend-con-class': item.self, 's-chatbox-extend-con-other-class': !item.self}">
+      <div
+        :class="{
+          's-chatbox-extend-con-class': item.self,
+          's-chatbox-extend-con-other-class': !item.self,
+        }"
+      >
         <s-chatbox :sContent="item.content" :sSelf="item.self" />
       </div>
-      <div :class="{'s-chatbox-extend-img-class': item.self,'s-chatbox-extend-img-other-class': !item.self}">
-        <s-avatar
-          :sSrc="
-            item.self
-              ? require('../../assets/avatar_my.jpg')
-              : require('../../assets/avatar_other.jpg')
-          "
-        />
+      <div
+        :class="{
+          's-chatbox-extend-img-class': item.self,
+          's-chatbox-extend-img-other-class': !item.self,
+        }"
+      >
+        <s-avatar :sSrc="item.self ? myAvatar : clientAvatar" />
       </div>
     </div>
   </div>
@@ -29,31 +33,34 @@ interface ChatBoxtype {
   readonly time: number;
   readonly content: string;
   self: boolean;
+  readonly myid?: string;
+  readonly roomid?: string;
+  readonly clientid?: string;
 }
 
 @Component({})
 export default class Chat_content extends Vue {
-  private chatArr: Array<ChatBoxtype> = [
-    // { time: 1, content: "这是一首无情的歌", self: false },
-    // { time: 2, content: "这是一首有情的歌", self: true },
-    // { time: 3, content: "这是一首歌🎙🎶🎵", self: false },
-    // { time: 3, content: "这是一首歌🎹👴", self: false },
-    // { time: 3, content: "这是一首歌", self: false },
-    // { time: 3, content: "这根本不是一首歌", self: true },
-    // { time: 3, content: "这是啥歌", self: true },
-    // { time: 3, content: "这是一首歌", self: false },
-    // { time: 3, content: "这歌是乱唱的吧", self: true },
-    // { time: 3, content: "这是一首歌", self: false },
-    // { time: 3, content: "这是🎤🎤🎻", self: true },
-    // { time: 3, content: "我叼", self: false },
-    // { time: 3, content: "啥啊这是", self: true },
-    // { time: 3, content: "来个表情", self: false },
-    // { time: 3, content: "😂在💋", self: false },
-    // { time: 3, content: "👀", self: true },
-    // { time: 3, content: "狗东西🐕‍🦺", self: false },
-  ];
+  private chatArr: Array<ChatBoxtype> = [];
+  private userChat: any = {};
+
+  @Prop(String) readonly clientAvatar: string | undefined;
+  @Prop(String) readonly myAvatar: string | undefined;
+  @Prop(String) readonly roomid: string | undefined;
+
+  @Watch("roomid")
+  differentUserHandle(newid:string,oldid:string) {
+    if(newid !== oldid) {
+      this.chatArr = this.userChat[newid] ?? []
+    }
+  }
 
   mounted() {
+    console.log(sessionStorage.getItem("roomid"))
+    let id:string = sessionStorage.getItem("roomid") as string
+    let oldChatArr = this.userChat[id]
+    if(oldChatArr) {
+      this.chatArr = oldChatArr
+    }
     this.$bus.$on("inputContent", (data: string) => {
       let text: ChatBoxtype = {
         time: new Date().getTime(),
@@ -61,12 +68,31 @@ export default class Chat_content extends Vue {
         self: true,
       };
       this.chatArr.push(text);
-      this.$socket.emit("otherSendMsg",text)
+      let id: string = this.roomid ?? sessionStorage.getItem("roomid") as string
+      if(this.userChat[id]) {
+        this.userChat[id].push(text)
+      } else {
+        this.userChat[id] = []
+        this.userChat[id].push(text)
+      }
+      // this.$socket.emit("otherSendMsg",text)
+      this.$socket.emit("privateChat",{
+        roomid: sessionStorage.getItem("roomid"),
+        chat: text
+      })
     });
     this.sockets.subscribe("otherSendMsg", (e: ChatBoxtype) => {
       console.log(e);
       e.self = false
       this.chatArr.push(e)
+      let id: string = this.roomid ?? sessionStorage.getItem("roomid") as string
+      if(this.userChat[id]) {
+        this.userChat[id].push(e)
+      } else {
+        this.userChat[id] = []
+        this.userChat[id].push(e)
+      }
+      console.log(this.userChat)
     });
   }
   updated() {
@@ -119,7 +145,7 @@ export default class Chat_content extends Vue {
   }
   .s-chatbox-extend-img-class {
     float: right;
-    user-select:none;
+    user-select: none;
     image {
       -webkit-user-drag: none;
     }
@@ -131,7 +157,7 @@ export default class Chat_content extends Vue {
   }
   .s-chatbox-extend-img-other-class {
     float: left;
-    user-select:none;
+    user-select: none;
     image {
       -webkit-user-drag: none;
     }

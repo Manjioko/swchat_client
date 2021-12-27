@@ -62,26 +62,26 @@ export default class Home extends Vue {
   updated() {}
   // mounted() {}
   mounted() {
-    let userid: string = localStorage.getItem("userid") ?? "";
-    let picUrl: string = `/public/${userid}/avatar/${userid}_avatar.jpg`;
-    this.$axios
-      .get(picUrl, { responseType: "blob", emulateJSON: true })
-      .then((res: any) => {
-        if (res.data) {
-          // return Promise.resolve(res.data);
-          this.avatarPath = window.URL.createObjectURL(res.data)
-          localStorage.setItem("avatarPath",this.avatarPath)
-        } else {
-          this.avatarPath = require('../assets/default_avatar.png')
-          localStorage.setItem("avatarPath",this.avatarPath)
-          // throw res;
-        }
-      })
-      .catch((err: any) => {
-        this.avatarPath = require('../assets/default_avatar.png')
-        localStorage.setItem("avatarPath",this.avatarPath)
-        console.log(err)
-      });
+    // let userid: string = localStorage.getItem("userid") ?? "";
+    // let picUrl: string = `/public/${userid}/avatar/${userid}_avatar.jpg`;
+    // this.$axios
+    //   .get(picUrl, { responseType: "blob", emulateJSON: true })
+    //   .then((res: any) => {
+    //     if (res.data) {
+    //       // return Promise.resolve(res.data);
+    //       this.avatarPath = window.URL.createObjectURL(res.data)
+    //       localStorage.setItem("avatarPath",this.avatarPath)
+    //     } else {
+    //       this.avatarPath = require('../assets/default_avatar.png')
+    //       localStorage.setItem("avatarPath",this.avatarPath)
+    //       // throw res;
+    //     }
+    //   })
+    //   .catch((err: any) => {
+    //     this.avatarPath = require('../assets/default_avatar.png')
+    //     localStorage.setItem("avatarPath",this.avatarPath)
+    //     console.log(err)
+    //   });
   }
 }
 </script>
