@@ -11,7 +11,7 @@ const routes: Array<RouteConfig> = [
     name: 'Home',
     meta: {
       index: 0,
-      keepAlive: false,
+      keepAlive: true,
     },
     component: Login
   },
@@ -50,7 +50,7 @@ const routes: Array<RouteConfig> = [
     name: 'GetFriend',
     meta: {
       index: 4,
-      keepAlive: false,
+      keepAlive: true,
     },
     component: () => import('../page/getFriend/getfriend.vue')
   }

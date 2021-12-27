@@ -9,6 +9,7 @@
             "
             :sWidth="80"
             :sHeight="80"
+            ref="sw_mysetting_avatar"
           />
           <input
             type="file"
@@ -88,31 +89,22 @@ export default class Chat_content extends Vue {
       console.log(file);
       const formData = new FormData();
       formData.append("key", ele.files[0]);
-      // formData.append("name","hello wolrd")
-      const url = this.$api.test;
-      // const resp = fetch(url, {
-      //           method: "POST",
-      //           body: formData //自动修改请求头,formdata的默认请求头的格式是 multipart/form-data
-      //       }).then(res => {
-      //         res.json().then(res => {
-      //             console.log(res)
-      //             if(res.success) {
-      //               this.avatarPath = res.path
-      //             }
-      //           })
-      //       })
+      formData.append("userid",localStorage.getItem("userid") as string)
       this.$axios
-        .post(url, formData,{username:"hello world"})
-        .then(function (response: any) {
-          console.log(response);
+        .post(this.$api.test, formData)
+        .then((response: any) => {
+          console.log(response.data);
+          let ok = response.data.success
+          if(ok){
+            this.avatarPath = this.avatarPath+"?t=" + Math.random()
+           
+          }
         })
         .catch(function (error: any) {
           console.log(error);
         });
 
-      // console.log(ele.files)
     }
-    // console.log(ele.files[0]!)
   }
   private handleGotoChatContent() {
     // this.$router.push("/chatview");

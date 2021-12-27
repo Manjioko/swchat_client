@@ -5,6 +5,7 @@
         class="sw-contactslist-outLevel-class"  
         v-for="user in userArr"
         :key="user.userid"
+        @click="gotoChatviewHandle(user.username,user.userid)"
       >
         <div class="sw-contactslist-avatar-class">
           <s-avatar
@@ -36,7 +37,18 @@ export default class Chat_content extends Vue {
 
   
 
-  private userArr: Array<userArrStruct> = [] 
+  private userArr: Array<userArrStruct> = []
+
+
+  private gotoChatviewHandle(name:string,id:string) {
+    this.$router.push({
+      name:"ChatView",
+      params: {
+        username: name,
+        clientid: id
+      }
+    })
+  }
 
   beforeCreate() {
     this.$axios
