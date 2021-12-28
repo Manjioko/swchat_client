@@ -2,19 +2,17 @@
   <div>
     <div class="sw-contactslist">
       <div
-        class="sw-contactslist-outLevel-class"  
+        class="sw-contactslist-outLevel-class"
         v-for="user in userArr"
         :key="user.userid"
-        @click="gotoChatviewHandle(user.username,user.userid)"
+        @click="gotoChatviewHandle(user.username, user.userid)"
       >
         <div class="sw-contactslist-avatar-class">
-          <s-avatar
-            :sSrc="user.avatar"
-          />
+          <s-avatar :sSrc="user.avatar" />
         </div>
 
         <div class="sw-contactslist-text-class">
-          <div>{{user.username}}</div>
+          <div>{{ user.username }}</div>
         </div>
       </div>
     </div>
@@ -25,44 +23,53 @@
 import { Component, Vue, Prop } from "vue-property-decorator";
 
 interface userArrStruct {
-  readonly username: String,
-  readonly userid: String,
-  readonly avatar: String
+  readonly username: String;
+  readonly userid: String;
+  readonly avatar: String;
 }
 
 @Component({
   components: {},
 })
 export default class Chat_content extends Vue {
+  private userArr: Array<userArrStruct> = [];
 
-  
-
-  private userArr: Array<userArrStruct> = []
-
-
-  private gotoChatviewHandle(name:string,id:string) {
+  private gotoChatviewHandle(name: string, id: string) {
     this.$router.push({
-      name:"ChatView",
+      name: "ChatView",
       params: {
         username: name,
-        clientid: id
-      }
-    })
+        clientid: id,
+      },
+    });
   }
 
   beforeCreate() {
     this.$axios
-        .post(this.$api.getMyfriendList, {
-            userid: localStorage.getItem("userid")
-        })
-        .then((response: any) => {
-          console.log(`用户好友列表: ${response.data}`)
-          this.userArr = response.data
-          console.log(response)
-        })
-        .catch((error: any) => {
-          console.log(error);
+      .post(this.$api.getMyfriendList, {
+        userid: localStorage.getItem("userid"),
+      })
+      .then((response: any) => {
+        console.log(`用户好友列表: ${response.data}`);
+        this.userArr = response.data;
+        console.log(response);
+        // 建立好友房连接
+        let createRoomidArr = [];
+        for (const fr of response.data) {
+          let myid: string = localStorage.getItem("userid") ?? "";
+          let clientid: string = fr.userid;
+          let roomid: string =
+            myid > clientid ? myid + clientid : clientid + myid;
+          createRoomidArr.push(roomid);
+        }
+        console.log(createRoomidArr);
+        this.$socket.emit("createPrivateChatRoom", {
+          roomidArr: createRoomidArr,
         });
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
   }
   created() {}
   beforeMount() {}

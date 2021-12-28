@@ -55,12 +55,12 @@ export default class Chat_content extends Vue {
   }
 
   mounted() {
-    console.log(sessionStorage.getItem("roomid"))
-    let id:string = sessionStorage.getItem("roomid") as string
-    let oldChatArr = this.userChat[id]
+    let roomid:string = sessionStorage.getItem("roomid") ?? ''
+    let oldChatArr = this.userChat[roomid]
     if(oldChatArr) {
       this.chatArr = oldChatArr
     }
+    // 读取键盘输入
     this.$bus.$on("inputContent", (data: string) => {
       let text: ChatBoxtype = {
         time: new Date().getTime(),
@@ -68,7 +68,7 @@ export default class Chat_content extends Vue {
         self: true,
       };
       this.chatArr.push(text);
-      let id: string = this.roomid ?? sessionStorage.getItem("roomid") as string
+      let id: string = this.roomid ?? sessionStorage.getItem("roomid") ?? ''
       if(this.userChat[id]) {
         this.userChat[id].push(text)
       } else {
@@ -77,30 +77,39 @@ export default class Chat_content extends Vue {
       }
       // this.$socket.emit("otherSendMsg",text)
       this.$socket.emit("privateChat",{
-        roomid: sessionStorage.getItem("roomid"),
+        roomid: id,
         chat: text
       })
     });
-    this.sockets.subscribe("otherSendMsg", (e: ChatBoxtype) => {
+    // 处理私聊信息
+    this.sockets.subscribe("privateChatWithOther", (e: any) => {
       console.log(e);
-      e.self = false
-      this.chatArr.push(e)
-      let id: string = this.roomid ?? sessionStorage.getItem("roomid") as string
-      if(this.userChat[id]) {
-        this.userChat[id].push(e)
-      } else {
-        this.userChat[id] = []
-        this.userChat[id].push(e)
+      let serverRoomid = e.roomid
+      let chat = e.chat
+      chat.self = false
+      let myid: string = sessionStorage.getItem('roomid') ?? ''
+      console.log("serverRoomid is " + serverRoomid)
+      console.log("myid is "+ myid)
+      if(myid === serverRoomid) {
+        this.chatArr.push(chat)
       }
-      console.log(this.userChat)
+      if(this.userChat[roomid]) {
+        this.userChat[roomid].push(chat)
+      } else {
+        this.userChat[roomid] = []
+        this.userChat[roomid].push(chat)
+      }
+      // console.log(this.userChat)
     });
   }
+
   updated() {
     let ele = document.getElementById("sw_chat_content");
     if (ele) {
       ele.scrollTop = ele?.scrollHeight;
     }
   }
+  // 监听路由变化
   @Watch("$route")
   routerhandle(e: Route) {
     // 解决 IOS 滚动僵住的问题

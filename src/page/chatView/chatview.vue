@@ -46,11 +46,11 @@ export default class Chat_view extends Vue {
       this.clientAvatar = `${this.$api.rootUrl}/public/${clientid}/avatar/${clientid}_avatar.jpg`;
       this.roomid = roomid
 
-      this.$socket.emit("createPrivateChatRoom", {
-        myid: myid,
-        clientid: clientid,
-        roomid: roomid,
-      });
+      // this.$socket.emit("createPrivateChatRoom", {
+      //   myid: myid,
+      //   clientid: clientid,
+      //   roomid: roomid,
+      // });
     } else {
       // console.log(sessionStorage.getItem("roomid"))
       this.$socket.emit("deletePrivateChatRoom", {
@@ -70,11 +70,11 @@ export default class Chat_view extends Vue {
     this.clientAvatar = `${this.$api.rootUrl}/public/${clientid}/avatar/${clientid}_avatar.jpg`;
 
     sessionStorage.setItem("roomid", roomid);
-    this.$socket.emit("createPrivateChatRoom", {
-      myid: myid,
-      clientid: clientid,
-      roomid: roomid,
-    });
+    // this.$socket.emit("createPrivateChatRoom", {
+    //   myid: myid,
+    //   clientid: clientid,
+    //   roomid: roomid,
+    // });
     // console.log(params);
     this.sockets.subscribe("connect", () => {
       console.log("success!!!");
