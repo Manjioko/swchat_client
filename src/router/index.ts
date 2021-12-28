@@ -8,7 +8,7 @@ Vue.use(VueRouter)
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: 'Home',
+    name: 'Login',
     meta: {
       index: 0,
       keepAlive: true,

@@ -63,9 +63,9 @@ export default class Chat_content extends Vue {
           createRoomidArr.push(roomid);
         }
         console.log(createRoomidArr);
-        this.$socket.emit("createPrivateChatRoom", {
-          roomidArr: createRoomidArr,
-        });
+        // this.$socket.emit("createPrivateChatRoom", {
+        //   roomidArr: createRoomidArr,
+        // });
       })
       .catch((error: any) => {
         console.log(error);

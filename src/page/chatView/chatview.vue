@@ -53,9 +53,9 @@ export default class Chat_view extends Vue {
       // });
     } else {
       // console.log(sessionStorage.getItem("roomid"))
-      this.$socket.emit("deletePrivateChatRoom", {
-        roomid: sessionStorage.getItem("roomid"),
-      });
+      // this.$socket.emit("deletePrivateChatRoom", {
+      //   roomid: sessionStorage.getItem("roomid"),
+      // });
     }
   }
 
@@ -75,12 +75,7 @@ export default class Chat_view extends Vue {
     //   clientid: clientid,
     //   roomid: roomid,
     // });
-    // console.log(params);
-    this.sockets.subscribe("connect", () => {
-      console.log("success!!!");
-      // this.$socket.emit("otherSendMsg", "hi server");
-    });
-    // socket.emit()
+  
   }
 }
 </script>
