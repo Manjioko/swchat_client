@@ -33,6 +33,7 @@ interface userArrStruct {
 })
 export default class Chat_content extends Vue {
   private userArr: Array<userArrStruct> = [];
+  private clientName: string = "";
 
   private gotoChatviewHandle(name: string, clientid: string) {
     // 设置roomid
@@ -41,17 +42,20 @@ export default class Chat_content extends Vue {
     this.$store.setLocalRoomid(roomid);
     // 设置clientid
     this.$store.setLocalClientid(clientid);
+    // 设置clientName
+    this.$store.setLocalClientname(name);
     //更新chatview页面内的roomid 和 clientid
     this.$bus.$emit("contactslist_update_ids_chatview", {
       roomid: roomid,
       clientid: clientid,
+      clientname: name,
     });
 
     this.$router.push({
       name: "ChatView",
       params: {
-        username: name,
-        clientid: clientid,
+        username: this.$store.getLocalUsername() ?? "",
+        clientid: this.$store.getLocalClientid() ?? "",
       },
     });
   }
@@ -82,7 +86,8 @@ export default class Chat_content extends Vue {
         console.log(error);
       });
   }
-  created() {}
+  created() {
+  }
   beforeMount() {}
   mounted() {}
 }

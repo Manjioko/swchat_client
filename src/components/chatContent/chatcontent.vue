@@ -33,69 +33,16 @@ import { ChatBoxtype } from "vue/types/chatBoxType";
 @Component({})
 export default class Chat_content extends Vue {
   private chatArr: Array<ChatBoxtype> = [];
-  // private userChat: any = {};
-  // @Prop(String) readonly roomid: string | undefined;
-
-  // @Watch("roomid")
-  // differentUserHandle(newid:string,oldid:string) {
-  //   if(newid !== oldid) {
-  //     this.chatArr = this.userChat[newid] ?? []
-  //   }
-  // }
 
   mounted() {
     this.$bus.$on("chatview_update_chatArr_to_chatcontent",(newChatArr:Array<ChatBoxtype>) => {
-      this.chatArr = [...newChatArr]
+      console.log("chatcontent update the chatArr...")
+      if(newChatArr)
+        this.chatArr = [...newChatArr]
     })
     this.$bus.$on("chatview_send_chat_data_to_chatcontent",(data:ChatBoxtype) => {
       this.chatArr.push(data)
     })
-    // let roomid:string = sessionStorage.getItem("roomid") ?? ''
-    // let oldChatArr = this.userChat[roomid]
-    // if(oldChatArr) {
-    //   this.chatArr = oldChatArr
-    // }
-    // // 读取键盘输入
-    // this.$bus.$on("inputContent", (data: string) => {
-    //   let text: ChatBoxtype = {
-    //     time: new Date().getTime(),
-    //     content: data,
-    //     self: true,
-    //   };
-    //   this.chatArr.push(text);
-    //   let id: string = this.roomid ?? sessionStorage.getItem("roomid") ?? ''
-    //   if(this.userChat[id]) {
-    //     this.userChat[id].push(text)
-    //   } else {
-    //     this.userChat[id] = []
-    //     this.userChat[id].push(text)
-    //   }
-      // this.$socket.emit("otherSendMsg",text)
-      // this.$socket.emit("privateChat",{
-      //   roomid: id,
-      //   chat: text
-      // })
-    // });
-    // 处理私聊信息
-    // this.sockets.subscribe("privateChatWithOther", (e: any) => {
-    //   console.log(e);
-    //   let serverRoomid = e.roomid
-    //   let chat = e.chat
-    //   chat.self = false
-    //   let myid: string = sessionStorage.getItem('roomid') ?? ''
-    //   console.log("serverRoomid is " + serverRoomid)
-    //   console.log("myid is "+ myid)
-    //   if(myid === serverRoomid) {
-    //     this.chatArr.push(chat)
-    //   }
-    //   if(this.userChat[roomid]) {
-    //     this.userChat[roomid].push(chat)
-    //   } else {
-    //     this.userChat[roomid] = []
-    //     this.userChat[roomid].push(chat)
-    //   }
-    //   // console.log(this.userChat)
-    // });
   }
 
   updated() {

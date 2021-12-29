@@ -6,6 +6,13 @@ class storage {
     getLocalUsername(): string | null {
         return localStorage.getItem("username")
     }
+    // 本地存储clientname
+    setLocalClientname(username: string) {
+        localStorage.setItem("clientname", username)
+    }
+    getLocalClientname(): string | null {
+        return localStorage.getItem("clientname")
+    }
     // 本地存储password
     setLocalPassword(pw: string) {
         localStorage.setItem("password", pw)
