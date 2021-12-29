@@ -19,7 +19,7 @@
           's-chatbox-extend-img-other-class': !item.self,
         }"
       >
-        <s-avatar :sSrc="item.self ? myAvatar : clientAvatar" />
+        <s-avatar :sSrc="item.avatar" />
       </div>
     </div>
   </div>
@@ -28,24 +28,12 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { Route } from "vue-router";
-
-interface ChatBoxtype {
-  readonly time: number;
-  readonly content: string;
-  readonly self: boolean;
-  readonly avatar: string;
-  readonly myid?: string;
-  readonly roomid?: string;
-  readonly clientid?: string;
-}
+import { ChatBoxtype } from "vue/types/chatBoxType";
 
 @Component({})
 export default class Chat_content extends Vue {
   private chatArr: Array<ChatBoxtype> = [];
   // private userChat: any = {};
-
-  @Prop(String) readonly clientAvatar: string | undefined;
-  @Prop(String) readonly myAvatar: string | undefined;
   // @Prop(String) readonly roomid: string | undefined;
 
   // @Watch("roomid")

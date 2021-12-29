@@ -39,7 +39,7 @@ export default class getFriend extends Vue {
         this.$axios
         .post(this.$api.getFriend, {
             friendname:this.friendname,
-            userid: localStorage.getItem("userid")
+            userid: this.$store.getLocalUserid()
         })
         .then((response: any) => {
             console.log(response)

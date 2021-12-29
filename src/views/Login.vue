@@ -16,15 +16,11 @@ import loginview from "@/page/logionView/loginview.vue"
 export default class Login extends Vue {
 
     beforeCreate() {
-        let username: string | null = localStorage.getItem("username")
-        let password: string | null =  localStorage.getItem("password")
-        let userid: string | null = localStorage.getItem("userid")
+        let username: string | null = this.$store.getLocalUsername()
+        let password: string | null =  this.$store.getLocalPassword()
+        let userid: string | null = this.$store.getLocalUserid()
         if(username && password && userid) {
-            // localStorage.setItem("username",'')
-            // localStorage.setItem("password",'')
-            // console.log(username)
             this.$router.replace("/home")
-            // console.log("nothing")
         }
     }
 

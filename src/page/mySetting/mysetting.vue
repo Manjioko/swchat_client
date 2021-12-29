@@ -76,8 +76,8 @@ import { Component, Vue, Prop } from "vue-property-decorator";
   components: {},
 })
 export default class Chat_content extends Vue {
-  private username: string = localStorage.getItem("username") ?? "";
-  private userid: string = localStorage.getItem("userid") ?? "";
+  private username: string = this.$store.getLocalUsername() ?? "";
+  private userid: string = this.$store.getLocalUserid() ?? "";
   private avatarPath: string = `${this.$api.rootUrl}/public/${this.userid}/avatar/${this.userid}_avatar.jpg`;
 
   private handleImageUpload(e: any) {
@@ -89,7 +89,7 @@ export default class Chat_content extends Vue {
       console.log(file);
       const formData = new FormData();
       formData.append("key", ele.files[0]);
-      formData.append("userid",localStorage.getItem("userid") as string)
+      formData.append("userid",this.userid)
       this.$axios
         .post(this.$api.test, formData)
         .then((response: any) => {
@@ -123,7 +123,6 @@ export default class Chat_content extends Vue {
   created() {}
   beforeMount() {}
   mounted() {
-    // this.avatarPath = localStorage.getItem("avatarPath") as string;
   }
 }
 </script>

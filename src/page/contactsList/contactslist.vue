@@ -34,12 +34,24 @@ interface userArrStruct {
 export default class Chat_content extends Vue {
   private userArr: Array<userArrStruct> = [];
 
-  private gotoChatviewHandle(name: string, id: string) {
+  private gotoChatviewHandle(name: string, clientid: string) {
+    // 设置roomid
+    let myid: string = this.$store.getLocalUserid() as string;
+    let roomid: string = myid > clientid ? myid + clientid : clientid + myid;
+    this.$store.setLocalRoomid(roomid);
+    // 设置clientid
+    this.$store.setLocalClientid(clientid);
+    //更新chatview页面内的roomid 和 clientid
+    this.$bus.$emit("contactslist_update_ids_chatview", {
+      roomid: roomid,
+      clientid: clientid,
+    });
+
     this.$router.push({
       name: "ChatView",
       params: {
         username: name,
-        clientid: id,
+        clientid: clientid,
       },
     });
   }
@@ -47,25 +59,24 @@ export default class Chat_content extends Vue {
   beforeCreate() {
     this.$axios
       .post(this.$api.getMyfriendList, {
-        userid: localStorage.getItem("userid"),
+        userid: this.$store.getLocalUserid(),
       })
       .then((response: any) => {
-        console.log(`用户好友列表: ${response.data}`);
         this.userArr = response.data;
-        console.log(response);
         // 建立好友房连接
         let createRoomidArr = [];
         for (const fr of response.data) {
-          let myid: string = localStorage.getItem("userid") ?? "";
+          let myid: string = this.$store.getLocalUserid() ?? "";
           let clientid: string = fr.userid;
           let roomid: string =
             myid > clientid ? myid + clientid : clientid + myid;
           createRoomidArr.push(roomid);
         }
-        console.log(createRoomidArr);
-        // this.$socket.emit("createPrivateChatRoom", {
-        //   roomidArr: createRoomidArr,
-        // });
+        //将全部好友加入私聊房间
+        this.$bus.$emit(
+          "contantslist_join_all_friends_to_private_room_websocketListener",
+          createRoomidArr
+        );
       })
       .catch((error: any) => {
         console.log(error);

@@ -56,17 +56,17 @@ export default class LoginView extends Vue {
           let { success, userid, check, correct } = response.data;
           // 创建新用户
           if (success) {
-            localStorage.setItem("username", this.username);
-            localStorage.setItem("password", this.password);
-            localStorage.setItem("userid", userid);
+            this.$store.setLocalUsername(this.username)
+            this.$store.setLocalPassword(this.password)
+            this.$store.setLocalUserid(userid)
             alert(`用户 ${this.username} 创建成功`)
             this.$router.replace("/home");
           }
           // 账号密码正确
           else if(check && correct) {
-            localStorage.setItem("username", this.username);
-            localStorage.setItem("password", this.password);
-            localStorage.setItem("userid", userid);
+            this.$store.setLocalUsername(this.username)
+            this.$store.setLocalPassword(this.password)
+            this.$store.setLocalUserid(userid)
             this.$router.replace("/home");
           }
           // 账号或密码错误
