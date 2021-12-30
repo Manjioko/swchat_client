@@ -6,7 +6,7 @@ import swallowUI from 'swallow-ui'
 import ApiUrl from './utils/apiUrl'
 import storageData from './utils/storageData'
 // import websocket from './websocket/websocketConfig'
-import websocketListener from './websocket/websocketListener'
+// import websocketListener from './websocket/websocketListener'
 const axios = require('axios').default
 Vue.config.productionTip = false
 
@@ -26,4 +26,4 @@ let vm = new Vue({
 }).$mount('#app')
 
 // websocket监听文件
-websocketListener(vm)
+// websocketListener(vm)

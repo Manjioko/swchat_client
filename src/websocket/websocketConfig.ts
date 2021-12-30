@@ -1,6 +1,6 @@
 import { io, Socket } from "socket.io-client"
 
-export default function socket(connectAddr: string): Socket {
+export default function socket(connectAddr: string,userid="123"): Socket {
     const socket = io(connectAddr,{
         autoConnect: true,                //启动自从自动连接
         secure: true,
@@ -9,7 +9,10 @@ export default function socket(connectAddr: string): Socket {
         reconnectionAttempts: 5,          //最大重试连接次数
         reconnectionDelay: 2000,          //最初尝试新的重新连接等待时间
         reconnectionDelayMax: 10000,      //最大等待重新连接,之前的2倍增长
-        timeout: 20000
+        timeout: 20000,
+        query: {
+          userid: userid
+        }
       })
 
       return socket

@@ -102,6 +102,7 @@ export default class Chat_view extends Vue {
         myid: this.userid ?? "",
         clientid: this.clientid ?? "",
         roomid: this.roomid ?? "",
+        clientname: this.username,
       };
       // 将消息发往chatcontent组件
       this.$bus.$emit("chatview_send_chat_data_to_chatcontent", chatBox);
@@ -118,6 +119,12 @@ export default class Chat_view extends Vue {
           this.$bus.$emit("chatview_send_chat_data_to_chatcontent", chatBox);
       }
     );
+    // 
+    this.$bus.$on("websocketListener_get_disconnect_chat_tmp_chatview",(chatBox: ChatBoxtype) => {
+      // 将消息发往chatcontent组件
+        if (chatBox && chatBox.roomid === this.roomid)
+          this.$bus.$emit("chatview_send_chat_data_to_chatcontent", chatBox);
+    })
   }
 }
 </script>

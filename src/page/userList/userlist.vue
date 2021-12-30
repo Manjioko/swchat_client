@@ -4,22 +4,22 @@
       <!-- <div id="xxxxxx"></div> -->
       <div
         class="sw-userlist-outLevel-class"
-        v-for="x in 15"
-        :key="x"
+        v-for="(item, key, index) in userObject"
+        :key="key"
         @click="handleGotoChatContent"
       >
         <div class="sw-userlist-avatar-class">
           <s-avatar
-            :sSrc="require('../../assets/avatar_other.jpg')"
+            :sSrc="item.avatar"
             :sWidth="50"
             :sHeight="50"
           />
         </div>
 
         <div class="sw-userlist-text-class">
-          <div>林清焰</div>
+          <div>{{item.clientname}}</div>
           <div class="sw-userlist-chatcontent-class">
-            我起床了哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈
+            {{item.lastContent}}
           </div>
         </div>
         <div class="sw-userlist-time-class">
@@ -33,11 +33,15 @@
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { Route } from "vue-router";
+import { ChatBoxtype } from "vue/types/chatBoxType";
 
 @Component({
   components: {},
 })
 export default class Chat_content extends Vue {
+  private userList: Array<any> = [];
+  private userObject: any = {}
+
   private handleGotoChatContent() {
     let ele: HTMLElement | null = document.getElementById("sw_userlist");
     let scrolltop: string = ele?.scrollTop.toString() ?? "";
@@ -45,19 +49,24 @@ export default class Chat_content extends Vue {
     this.$router.push("/chatview");
   }
 
-  private getdate(): string {
-    let now = new Date(),
-      y = now.getFullYear(),
-      m = now.getMonth() + 1,
-      d = now.getDate();
-    return (
-      y +
-      "-" +
-      (m < 10 ? "0" + m : m) +
-      "-" +
-      (d < 10 ? "0" + d : d) +
-      " " +
-      now.toTimeString().substr(0, 8)
+  created() {
+    this.$bus.$on(
+      "websocketListener_send_chatbox_to_userlist",
+      (chatBox: ChatBoxtype) => {
+        let clientid = chatBox.clientid
+        if(!this.userObject[clientid as string]) {
+          let obj = {
+            clientname: chatBox.clientname,
+            avatar: chatBox.avatar,
+            lastContent: chatBox.content,
+            unreadchatNumber: 1
+          }
+          this.$set(this.userObject,clientid as string,obj)
+        } else {
+          this.userObject[clientid as string].lastContent = chatBox.content;
+          this.userObject[clientid as string].unreadchatNumber += 1;
+        }
+      }
     );
   }
   mounted() {
