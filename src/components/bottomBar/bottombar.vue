@@ -5,6 +5,12 @@
         @click="handleBottombarClick(0)"
         class="sw-bottombar-iconParentNode-class"
       >
+        <div
+          class="sw-bottombar-reddot-class"
+          v-show="reddot"
+        >
+          <span>{{reddot}}</span>
+        </div>
         <img
           :src="
             this.barToggle[0]
@@ -77,6 +83,7 @@ import { Component, Vue, Prop } from "vue-property-decorator";
 @Component({})
 export default class Chat_content extends Vue {
   private barToggle: Array<Boolean> = [true, false, false];
+  private reddot: number = 0;
 
   private handleBottombarClick(index: number) {
     this.barToggle = this.barToggle.map((_, i) => {
@@ -85,10 +92,16 @@ export default class Chat_content extends Vue {
       }
       return false;
     });
-    this.$emit("bartoggle",[... this.barToggle])
+    this.$emit("bartoggle", [...this.barToggle]);
     // console.log(this.barToggle);
   }
   mounted() {}
+  created() {
+    this.$bus.$on("userlist_send_reddot_number_to_bottombar",(reddot:number)=>{
+      // console.log(reddot)
+      this.reddot = reddot
+    })
+  }
 }
 </script>
 
@@ -120,8 +133,23 @@ export default class Chat_content extends Vue {
     color: #ff8378;
   }
   .sw-bottombar-iconParentNode-class {
+    position: relative;
     width: 20vw;
     height: 10vh;
+  }
+  .sw-bottombar-reddot-class {
+    background: red;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: white;
+    position: absolute;
+    right: 6px;
+    top: -7px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>

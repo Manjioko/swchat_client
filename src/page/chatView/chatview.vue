@@ -1,6 +1,6 @@
 <template>
   <div class="sw-chatview">
-    <topbar :showBack="true" :showMore="true" :username="username" />
+    <topbar :showBack="true" :showMore="true" :username="clientname" />
     <chatcontent />
     <inputcontent />
   </div>
@@ -22,7 +22,8 @@ import { ChatBoxtype } from "vue/types/chatBoxType";
   },
 })
 export default class Chat_view extends Vue {
-  private username: string = "";
+  private clientname: string = "";
+  private myname: string = "";
   private roomid: string | null = null;
   private clientid: string | null = null;
   private userid: string | null = this.$store.getLocalUserid();
@@ -35,27 +36,10 @@ export default class Chat_view extends Vue {
     //   if(ele)
     //     ele.scrollTop = 1
     // }
-    // this.username = e.params?.username ?? "";
-    // let myid: string = this.$store.getLocalUserid() as string;
-    // let clientid: string = e.params.clientid;
-    // if (e.name === "ChatView") {
-    //   let roomid: string = myid > clientid ? myid + clientid : clientid + myid;
-    //   sessionStorage.setItem("roomid", roomid);
-    //   // 头像
-    //   this.myAvatar = `${this.$api.rootUrl}/public/${myid}/avatar/${myid}_avatar.jpg`;
-    //   this.clientAvatar = `${this.$api.rootUrl}/public/${clientid}/avatar/${clientid}_avatar.jpg`;
-    //   this.roomid = roomid
-    // this.$socket.emit("createPrivateChatRoom", {
-    //   myid: myid,
-    //   clientid: clientid,
-    //   roomid: roomid,
-    // });
-    // } else {
-    // console.log(sessionStorage.getItem("roomid"))
-    // this.$socket.emit("deletePrivateChatRoom", {
-    //   roomid: sessionStorage.getItem("roomid"),
-    // });
-    // }
+    if(e.name !== "ChatView") {
+      // 退出页面时也需要消除userlist的红点
+      this.$bus.$emit("viewchat_leave_page_clear_reddot_userlist",this.clientid)
+    }
   }
 
   mounted() {}
@@ -72,13 +56,19 @@ export default class Chat_view extends Vue {
     // 如果之前没有加载页面就初始化
     this.roomid = this.$store.getLocalRoomid();
     this.clientid = this.$store.getLocalClientid();
-    this.username = this.$store.getLocalClientname();
+    this.clientname = this.$store.getLocalClientname();
+    this.myname = this.$store.getLocalUsername()
     // 挂个bus,随时更新 id
     this.$bus.$on("contactslist_update_ids_chatview", (idObj: any) => {
       this.roomid = idObj.roomid;
       this.clientid = idObj.clientid;
-      this.username = idObj.clientname;
-      // console.log(idObj.clientname)
+      this.clientname = idObj.clientname;
+    });
+    // 这是userlist页面的bus,随时更新id
+    this.$bus.$on("userlist_update_ids_chatview", (idObj: any) => {
+      this.roomid = idObj.roomid;
+      this.clientid = idObj.clientid;
+      this.clientname = idObj.clientname;
     });
     // 监听聊天记录更新
     this.$bus.$on(
@@ -102,7 +92,8 @@ export default class Chat_view extends Vue {
         myid: this.userid ?? "",
         clientid: this.clientid ?? "",
         roomid: this.roomid ?? "",
-        clientname: this.username,
+        clientname: this.clientname,
+        myname: this.myname
       };
       // 将消息发往chatcontent组件
       this.$bus.$emit("chatview_send_chat_data_to_chatcontent", chatBox);

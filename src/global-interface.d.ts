@@ -11,5 +11,6 @@ declare module 'vue/types/chatBoxType' {
         readonly roomid?: string;
         readonly clientid?: string;
         readonly clientname?: string;
+        readonly myname?: string;
     }
 }

@@ -6,20 +6,29 @@
         class="sw-userlist-outLevel-class"
         v-for="(item, key, index) in userObject"
         :key="key"
-        @click="handleGotoChatContent"
+        @click="
+          handleGotoChatContent(
+            item.clientname,
+            item.clientid,
+            item.roomid,
+            key
+          )
+        "
       >
         <div class="sw-userlist-avatar-class">
-          <s-avatar
-            :sSrc="item.avatar"
-            :sWidth="50"
-            :sHeight="50"
-          />
+          <div
+            class="sw-userlist-reddot-class"
+            v-show="item.unreadchatNumber > 0"
+          >
+            <span>{{ item.unreadchatNumber }}</span>
+          </div>
+          <s-avatar :sSrc="item.avatar" :sWidth="50" :sHeight="50" />
         </div>
 
         <div class="sw-userlist-text-class">
-          <div>{{item.clientname}}</div>
+          <div>{{ item.clientname }}</div>
           <div class="sw-userlist-chatcontent-class">
-            {{item.lastContent}}
+            {{ item.lastContent }}
           </div>
         </div>
         <div class="sw-userlist-time-class">
@@ -39,40 +48,144 @@ import { ChatBoxtype } from "vue/types/chatBoxType";
   components: {},
 })
 export default class Chat_content extends Vue {
-  private userList: Array<any> = [];
-  private userObject: any = {}
+  // private userList: Array<any> = [];
+  private userObject: any = {};
+  private reddot: number = 0;
 
-  private handleGotoChatContent() {
-    let ele: HTMLElement | null = document.getElementById("sw_userlist");
-    let scrolltop: string = ele?.scrollTop.toString() ?? "";
-    sessionStorage.setItem("st", scrolltop);
-    this.$router.push("/chatview");
+  @Watch('reddot')
+    handleReddot(newreddot:number,oldreddot:number) {
+      if(newreddot !== oldreddot) {
+        // console.log(`The red dot is ${newreddot}`)
+        this.$bus.$emit("userlist_send_reddot_number_to_bottombar",newreddot)
+      }
+    }
+
+  private handleGotoChatContent(
+    clientname: string,
+    clientid: string,
+    roomid: string,
+    key: string
+  ) {
+    // 设置roomid
+    this.$store.setLocalRoomid(roomid);
+    // 设置clientid
+    this.$store.setLocalClientid(clientid);
+    // 设置clientName
+    this.$store.setLocalClientname(clientname);
+    //更新chatview页面内的roomid 和 clientid
+    this.$bus.$emit("userlist_update_ids_chatview", {
+      roomid: roomid,
+      clientid: clientid,
+      clientname: clientname,
+    });
+    // 计算红点总数
+    this.reddot -= this.userObject[key].unreadchatNumber;
+    // 红点清零
+    this.userObject[key].unreadchatNumber = 0;
+
+    this.$router.push({
+      name: "ChatView",
+      params: {
+        username: this.$store.getLocalUsername() ?? "",
+        clientid: this.$store.getLocalClientid() ?? "",
+      },
+    });
+  }
+
+  private notification(chatBox: ChatBoxtype) {
+    if (window.Notification) {
+      if (window.Notification.permission === "granted") {
+        if (!chatBox.self)
+          new Notification(chatBox.clientname as string, {
+            body: chatBox.content,
+            icon: chatBox.avatar,
+          });
+      } else if (window.Notification.permission === "denied") {
+        console.log("用户拒绝通知");
+      } else {
+        window.Notification.requestPermission();
+      }
+    } else {
+      console.log("你的浏览器不支持此特性，请下载谷歌浏览器试用该功能");
+    }
   }
 
   created() {
+    // 消息发送或接收都会经过这里
     this.$bus.$on(
       "websocketListener_send_chatbox_to_userlist",
       (chatBox: ChatBoxtype) => {
-        let clientid = chatBox.clientid
-        if(!this.userObject[clientid as string]) {
-          let obj = {
-            clientname: chatBox.clientname,
-            avatar: chatBox.avatar,
-            lastContent: chatBox.content,
-            unreadchatNumber: 1
-          }
-          this.$set(this.userObject,clientid as string,obj)
-        } else {
-          this.userObject[clientid as string].lastContent = chatBox.content;
-          this.userObject[clientid as string].unreadchatNumber += 1;
+        this.buildUserObject(chatBox);
+        this.notification(chatBox);
+      }
+    );
+    // 从contactslist组件进入时也需要消除红点
+    this.$bus.$on("contactslist_clear_reddot_userlist", (clientid: string) => {
+      if (this.userObject[clientid]) {
+        // 计算红点总数
+        this.reddot -= this.userObject[clientid].unreadchatNumber;
+        // 红点清零
+        this.userObject[clientid].unreadchatNumber = 0;
+      }
+    });
+    // 从viewchat 页面退出也也需要消除红点
+    this.$bus.$on(
+      "viewchat_leave_page_clear_reddot_userlist",
+      (clientid: string) => {
+        if (this.userObject[clientid]) {
+          // 计算红点总数
+          this.reddot -= this.userObject[clientid].unreadchatNumber;
+          // 红点清零
+          this.userObject[clientid].unreadchatNumber = 0;
         }
       }
     );
   }
+
+  private buildUserObject(chatBox: ChatBoxtype) {
+    if (chatBox.self) {
+      let clientid: string = chatBox.clientid as string;
+      if (this.userObject[clientid]) {
+        this.userObject[clientid].lastContent = chatBox.content;
+      } else {
+        let obj = {
+          clientname: chatBox.clientname,
+          clientid: chatBox.clientid,
+          avatar: `${this.$api.rootUrl}/public/${chatBox.clientid}/avatar/${chatBox.clientid}_avatar.jpg`,
+          lastContent: chatBox.content,
+          unreadchatNumber: 0,
+          roomid: chatBox.roomid,
+        };
+        this.$set(this.userObject, clientid, obj);
+      }
+    } else {
+      let clientid: string = chatBox.myid as string;
+      if (this.userObject[clientid]) {
+        this.userObject[clientid].lastContent = chatBox.content;
+        this.userObject[clientid].unreadchatNumber += 1;
+        // 计算总红点数
+        this.reddot += 1;
+      } else {
+        let obj = {
+          clientname: chatBox.myname,
+          clientid: chatBox.myid,
+          avatar: chatBox.avatar,
+          lastContent: chatBox.content,
+          unreadchatNumber: 1,
+          roomid: chatBox.roomid,
+        };
+        this.$set(this.userObject, clientid, obj);
+        // 计算总红点数
+        this.reddot += 1;
+      }
+    }
+  }
+
   mounted() {
     let ele: HTMLElement | null = document.getElementById("sw_userlist");
     if (ele) ele.scrollTop = parseInt(sessionStorage.getItem("st") ?? "1");
   }
+
   @Watch("$route")
   routerhandle(e: Route) {
     if (e.name == "Home") {
@@ -107,6 +220,7 @@ export default class Chat_content extends Vue {
   }
   .sw-userlist-avatar-class {
     float: left;
+    position: relative;
   }
   .sw-userlist-text-class {
     font-size: 5.5vw;
@@ -138,6 +252,20 @@ export default class Chat_content extends Vue {
     // display: inline-block;
     font-size: 3vw;
     color: #e5e5e5;
+  }
+  .sw-userlist-reddot-class {
+    background: red;
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    color: white;
+    position: absolute;
+    right: -8px;
+    top: -6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>

@@ -36,7 +36,7 @@ export default class Chat_content extends Vue {
 
   mounted() {
     this.$bus.$on("chatview_update_chatArr_to_chatcontent",(newChatArr:Array<ChatBoxtype>) => {
-      console.log("chatcontent update the chatArr...")
+      // console.log("chatcontent update the chatArr...")
       if(newChatArr)
         this.chatArr = [...newChatArr]
     })

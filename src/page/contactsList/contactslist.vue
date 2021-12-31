@@ -51,6 +51,9 @@ export default class Chat_content extends Vue {
       clientname: name,
     });
 
+    // 进入页面时应先消除userlist页面的红点
+    this.$bus.$emit("contactslist_clear_reddot_userlist", clientid);
+
     this.$router.push({
       name: "ChatView",
       params: {
