@@ -10,15 +10,15 @@ const chatTmpData: any = {}
 function proxyArray(bus: Vue): Array<ChatBoxtype> {
     return new Proxy([], {
         get: function (target, key) {
-          return Reflect.get(target, key);
+            return Reflect.get(target, key);
         },
         set: function (target, key, value) {
-          if(value?.roomid) {
-              bus.$emit("websocketListener_send_chatbox_to_userlist",value)
-          }
-          return Reflect.set(target, key, value);
+            if (value?.roomid) {
+                bus.$emit("websocketListener_send_chatbox_to_userlist", value)
+            }
+            return Reflect.set(target, key, value);
         }
-      });
+    });
 }
 
 

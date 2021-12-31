@@ -6,7 +6,7 @@ class ApiUrl {
     getMyfriendList: string;
     constructor() {
         // http://203.174.57.179:3000/
-        this.rootUrl = "http://203.174.57.179:3000"
+        this.rootUrl = "http://203.174.57.179:6438"
         // /test
         this.test = `${this.rootUrl}/test`
         // /getfriend
