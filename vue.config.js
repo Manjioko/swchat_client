@@ -12,6 +12,6 @@ module.exports = {
         // }
     },
     devServer: {
-        proxy: 'http://203.174.57.179:6438'
+        proxy: 'http://203.174.57.179:3000'
     }
 }

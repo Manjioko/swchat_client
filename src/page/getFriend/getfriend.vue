@@ -1,6 +1,7 @@
 <template>
   <div>
     <!-- <div class="loginview-logintext-class">登陆燕语</div> -->
+    <topbar :showBack="true" />
     <div class="getFriend">
       <div class="getFriend-layout-class">
         <div class="getFriend-friendname-class">
@@ -27,9 +28,12 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
+import topbar from "@/components/topBar/topbar.vue"
 
 @Component({
-  components: {},
+  components: {
+    topbar,
+  },
 })
 export default class getFriend extends Vue {
     private friendname: string = ''
@@ -43,6 +47,24 @@ export default class getFriend extends Vue {
         })
         .then((response: any) => {
             console.log(response)
+            let addfriend = response.data.addfriend
+            let why = response.data.why
+            if(addfriend) {
+              alert("好友添加成功")
+              this.$router.go(-1)
+            } else {
+              switch(why) {
+                case 0:
+                    alert("不能添加自己作为好友")
+                    return
+                case 1:
+                    alert("账号不存在，请重新输入")
+                    return
+                case 3:
+                    alert("不能重复添加已存在的好友")
+                    return
+              }
+            }
         })
         .catch((error: any) => {
           console.log(error);

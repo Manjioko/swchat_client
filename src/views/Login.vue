@@ -7,7 +7,7 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 import loginview from "@/page/logionView/loginview.vue";
-import websocketListener from "@/websocket/websocketListener"
+// import websocketListener from "@/websocket/websocketListener"
 
 @Component({
   components: {
@@ -21,7 +21,7 @@ export default class Login extends Vue {
     let userid: string | null = this.$store.getLocalUserid();
     if (username && password && userid) {
       this.$router.replace("/home");
-      websocketListener(this,userid)
+      // websocketListener(this,userid)
     }
   }
 }

@@ -4,6 +4,7 @@ import Vue from "vue"
 import { ChatBoxtype } from 'vue/types/chatBoxType'
 
 const chatTmpData: any = {}
+var time: any;
 
 // 给数组挂上代理,监听数组变化
 // 数组变化则需要通知userlist组件作出改变
@@ -65,8 +66,30 @@ function handleBus(bus: Vue, socket: Socket) {
 function handleSocket(socket: Socket, bus: Vue) {
     // websocket 连接 server
     socket.on("connect", () => {
+        if (time) {
+            clearInterval(time)
+        }
+        // 通知前端断线重连成功
+        bus.$emit("websocketListener_reconnecting", false)
         console.log("websocket connect successed.")
     })
+    socket.on("connect_err", () => {
+        setTimeout(() => {
+            console.log("connect_err")
+            socket.connect();
+        }, 3000);
+    })
+    socket.on("disconnect", (reason) => {
+        console.log("disconnect")
+        reconnect(socket, bus)
+        if (reason === "io server disconnect") {
+            // the disconnection was initiated by the server, you need to reconnect manually
+            console.log("io server disconnect")
+            socket.connect();
+        }
+
+        // else the socket will automatically try to reconnect
+    });
 
     // 正常情况下接收到的别人发送来的信息
     socket.on("privateChatWithOther", (chatBox: ChatBoxtype) => {
@@ -86,4 +109,20 @@ function handleSocket(socket: Socket, bus: Vue) {
         // console.log(data)
     })
 
+}
+
+
+function reconnect(socket: Socket, bus: Vue) {
+
+    // 通知前端正在断线重连
+    bus.$emit("websocketListener_reconnecting", true)
+
+    time = setInterval(() => {
+        console.log("reconnecting...")
+        try {
+            socket.connect()
+        } catch {
+            console.log("线路不可用...")
+        }
+    }, 3000)
 }

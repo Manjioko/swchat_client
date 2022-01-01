@@ -35,7 +35,7 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import websocketListener from "@/websocket/websocketListener"
+// import websocketListener from "@/websocket/websocketListener"
 
 @Component({
   components: {},
@@ -61,7 +61,7 @@ export default class LoginView extends Vue {
             this.$store.setLocalUserid(userid)
             alert(`用户 ${this.username} 创建成功`)
             this.$router.replace("/home");
-            websocketListener(this,userid)
+            // websocketListener(this,userid)
           }
           // 账号密码正确
           else if(check && correct) {
@@ -69,7 +69,7 @@ export default class LoginView extends Vue {
             this.$store.setLocalPassword(this.password)
             this.$store.setLocalUserid(userid)
             this.$router.replace("/home");
-            websocketListener(this,userid)
+            // websocketListener(this,userid)
           }
           // 账号或密码错误
           else if(check && !correct) {

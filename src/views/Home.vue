@@ -24,6 +24,7 @@ import topbar from "@/components/topBar/topbar.vue";
 import bottombar from "@/components/bottomBar/bottombar.vue"
 import contactlist from "@/page/contactsList/contactslist.vue"
 import mysetting from "@/page/mySetting/mysetting.vue"
+import websocketListener from "@/websocket/websocketListener"
 
 @Component({
   components: {
@@ -58,6 +59,10 @@ export default class Home extends Vue {
   }
   private goToGetFriendView() {
     this.$router.push("/getfriend")
+  }
+  beforeCreate() {
+    let userid: string = this.$store.getLocalUserid() as string;
+    websocketListener(this,userid)
   }
   updated() {}
   // mounted() {}

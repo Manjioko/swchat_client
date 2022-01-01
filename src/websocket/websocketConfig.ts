@@ -4,7 +4,7 @@ export default function socket(connectAddr: string,userid="123"): Socket {
     const socket = io(connectAddr,{
         autoConnect: true,                //启动自从自动连接
         secure: true,
-        transports: ['websocket'],        // ['websocket', 'polling']
+        transports: ['websocket','polling'], // ['websocket', 'polling']
         reconnection: true,               //启动重新连接
         reconnectionAttempts: 5,          //最大重试连接次数
         reconnectionDelay: 2000,          //最初尝试新的重新连接等待时间
