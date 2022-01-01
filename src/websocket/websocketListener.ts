@@ -64,6 +64,10 @@ function handleBus(bus: Vue, socket: Socket) {
 }
 
 function handleSocket(socket: Socket, bus: Vue) {
+    // console.log(socket.connected)
+    if (!socket.connected) {
+        reconnect(socket, bus)
+    }
     // websocket 连接 server
     socket.on("connect", () => {
         if (time) {
@@ -114,15 +118,16 @@ function handleSocket(socket: Socket, bus: Vue) {
 
 function reconnect(socket: Socket, bus: Vue) {
 
-    // 通知前端正在断线重连
-    bus.$emit("websocketListener_reconnecting", true)
-
     time = setInterval(() => {
-        console.log("reconnecting...")
         try {
-            socket.connect()
+            if(!socket.connected) {
+                socket.connect()
+                console.log("reconnecting...")
+                // 通知前端正在断线重连
+                bus.$emit("websocketListener_reconnecting", true)
+            }
         } catch {
             console.log("线路不可用...")
         }
-    }, 3000)
+    }, 4000)
 }
