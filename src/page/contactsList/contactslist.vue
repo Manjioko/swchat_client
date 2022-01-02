@@ -1,6 +1,10 @@
 <template>
   <div>
-    <div class="sw-contactslist">
+    <div
+      class="sw-contactslist"
+      @touchstart="touchstartHandle($event)"
+      @touchmove="touchmoveHandle($event)"
+    >
       <div
         class="sw-contactslist-outLevel-class"
         v-for="user in userArr"
@@ -34,6 +38,22 @@ interface userArrStruct {
 export default class Chat_content extends Vue {
   private userArr: Array<userArrStruct> = [];
   private clientName: string = "";
+
+  private touchStartX: number = 0;
+  private touchMoveX: number = 0;
+  private moveWidth: number = 0;
+
+  private touchstartHandle(event: TouchEvent) {
+    // console.log(event.touches[0].clientX)
+    this.touchStartX = event.touches[0].clientX;
+  }
+
+  private touchmoveHandle(event: TouchEvent) {
+    // console.log(event.touches[0].clientX)
+    this.touchMoveX = event.touches[0].clientX;
+    this.moveWidth = this.touchStartX - this.touchMoveX;
+    console.log(this.moveWidth);
+  }
 
   private gotoChatviewHandle(name: string, clientid: string) {
     // 设置roomid
@@ -89,8 +109,7 @@ export default class Chat_content extends Vue {
         console.log(error);
       });
   }
-  created() {
-  }
+  created() {}
   beforeMount() {}
   mounted() {}
 }
