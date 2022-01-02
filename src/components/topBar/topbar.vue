@@ -8,7 +8,7 @@
       />
     </div>
     <div class="topbar-back-username-class">
-      {{ reconnect ? "正在恢复连接..." : username }}
+      {{ reconnect ? reconnect : username }}
     </div>
     <div class="topbar-more-class" @click="topbarBackHandle" v-show="showMore">
       <img
@@ -29,15 +29,27 @@ export default class Chat_content extends Vue {
   @Prop(String) readonly username: string | undefined;
   @Prop(Boolean) readonly showBack!: boolean;
   @Prop(Boolean) readonly showMore!: boolean;
-  private reconnect: boolean = false
+  private reconnect: any = ''
   private topbarBackHandle() {
     this.$router.go(-1)
     // alert("back");
   }
   mounted() {}
   created() {
-    this.$bus.$on("websocketListener_reconnecting",(reconnect:boolean) => {
-      this.reconnect = reconnect
+    this.$bus.$on("websocketListener_reconnecting",(reconnect:number) => {
+      
+      // this.reconnect = reconnect
+      switch(reconnect) {
+        case 0:
+          this.reconnect = "正在连接..."
+          return
+        case 1:
+          this.reconnect = false
+          return
+        case 2:
+          this.reconnect = "未连接"
+          return
+      }
     })
   }
 }
