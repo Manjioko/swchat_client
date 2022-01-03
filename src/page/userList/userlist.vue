@@ -4,7 +4,7 @@
       <!-- <div id="xxxxxx"></div> -->
       <div
         class="sw-userlist-outLevel-class"
-        v-for="(item, key, index) in userObject"
+        v-for="(item, key) in userObject"
         :key="key"
         @click="
           handleGotoChatContent(

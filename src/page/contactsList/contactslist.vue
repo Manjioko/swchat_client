@@ -24,7 +24,6 @@
         </div>
 
         <div class="sw-contactslist-deleted">删除</div>
-
       </div>
     </div>
   </div>
@@ -50,17 +49,26 @@ export default class Chat_content extends Vue {
   private touchMoveX: number = 0;
   private moveWidth: number = 0;
 
+  private divTarget: EventTarget | null = null;
+
   private touchstartHandle(event: TouchEvent) {
     // console.log(event.touches[0].clientX)
     this.touchStartX = event.touches[0].clientX;
+    this.divTarget = event.target
+    console.log((this.divTarget as HTMLElement).className)
   }
 
   private touchmoveHandle(event: TouchEvent) {
     // console.log(event.touches[0].clientX)
     this.touchMoveX = event.touches[0].clientX;
     this.moveWidth = this.touchStartX - this.touchMoveX;
-    console.log(this.moveWidth);
-  }
+    let  moveleft:number = 0 - this.moveWidth
+    if(moveleft <= 0)
+      (this.divTarget as HTMLElement).style.left = (0 - this.moveWidth) + "px"
+    else
+      (this.divTarget as HTMLElement).style.left = "0px"
+    // console.log();
+  } 
 
   private gotoChatviewHandle(name: string, clientid: string) {
     // 设置roomid
@@ -135,8 +143,9 @@ export default class Chat_content extends Vue {
     -webkit-overflow-scrolling: touch;
   }
   .sw-contactslist-outLevel-class {
-    position: relative;
+    position: absolute;
     height: 4vh;
+    width: 97vw;
     min-height: 40px;
     background-color: #fdfdfd;
     text-align: start;
@@ -161,15 +170,18 @@ export default class Chat_content extends Vue {
     }
   }
   .sw-contactslist-forlist {
-    position: relative;
+    height: 9.5vh;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    align-items: center;
+    align-content: center;
   }
   .sw-contactslist-deleted {
-    top: 0px;
-    position: absolute;
-    right: 0px;
+    width: 10vw;
+    height: 9.2vh;
     background: red;
-    width: 13vw;
-    height: 7vh;
   }
 }
 </style>
