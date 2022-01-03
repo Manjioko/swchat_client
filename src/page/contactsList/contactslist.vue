@@ -8,12 +8,10 @@
       <div
         v-for="user in userArr"
         :key="user.userid"
-        class="sw-contactslist-forlist"
+        class="sw-contactslist-outLevel-class"
+        @click="gotoChatviewHandle(user.username, user.userid)"
       >
-        <div
-          class="sw-contactslist-outLevel-class"
-          @click="gotoChatviewHandle(user.username, user.userid)"
-        >
+        <div class="sw-contactslist-left-content">
           <div class="sw-contactslist-avatar-class">
             <s-avatar :sSrc="user.avatar" />
           </div>
@@ -23,7 +21,11 @@
           </div>
         </div>
 
-        <div class="sw-contactslist-deleted">删除</div>
+        <div>
+          <!-- <div>删除</div> -->
+        </div>
+
+
       </div>
     </div>
   </div>
@@ -52,23 +54,14 @@ export default class Chat_content extends Vue {
   private divTarget: EventTarget | null = null;
 
   private touchstartHandle(event: TouchEvent) {
-    // console.log(event.touches[0].clientX)
     this.touchStartX = event.touches[0].clientX;
-    this.divTarget = event.target
-    console.log((this.divTarget as HTMLElement).className)
   }
 
   private touchmoveHandle(event: TouchEvent) {
     // console.log(event.touches[0].clientX)
     this.touchMoveX = event.touches[0].clientX;
     this.moveWidth = this.touchStartX - this.touchMoveX;
-    let  moveleft:number = 0 - this.moveWidth
-    if(moveleft <= 0)
-      (this.divTarget as HTMLElement).style.left = (0 - this.moveWidth) + "px"
-    else
-      (this.divTarget as HTMLElement).style.left = "0px"
-    // console.log();
-  } 
+  }
 
   private gotoChatviewHandle(name: string, clientid: string) {
     // 设置roomid
@@ -143,9 +136,8 @@ export default class Chat_content extends Vue {
     -webkit-overflow-scrolling: touch;
   }
   .sw-contactslist-outLevel-class {
-    position: absolute;
     height: 4vh;
-    width: 97vw;
+    // width: 97vw;
     min-height: 40px;
     background-color: #fdfdfd;
     text-align: start;
@@ -168,20 +160,6 @@ export default class Chat_content extends Vue {
     div:nth-child(1) {
       display: contents;
     }
-  }
-  .sw-contactslist-forlist {
-    height: 9.5vh;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    justify-content: flex-end;
-    align-items: center;
-    align-content: center;
-  }
-  .sw-contactslist-deleted {
-    width: 10vw;
-    height: 9.2vh;
-    background: red;
   }
 }
 </style>
