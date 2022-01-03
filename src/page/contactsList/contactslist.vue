@@ -6,18 +6,25 @@
       @touchmove="touchmoveHandle($event)"
     >
       <div
-        class="sw-contactslist-outLevel-class"
         v-for="user in userArr"
         :key="user.userid"
-        @click="gotoChatviewHandle(user.username, user.userid)"
+        class="sw-contactslist-forlist"
       >
-        <div class="sw-contactslist-avatar-class">
-          <s-avatar :sSrc="user.avatar" />
+        <div
+          class="sw-contactslist-outLevel-class"
+          @click="gotoChatviewHandle(user.username, user.userid)"
+        >
+          <div class="sw-contactslist-avatar-class">
+            <s-avatar :sSrc="user.avatar" />
+          </div>
+
+          <div class="sw-contactslist-text-class">
+            <div>{{ user.username }}</div>
+          </div>
         </div>
 
-        <div class="sw-contactslist-text-class">
-          <div>{{ user.username }}</div>
-        </div>
+        <div class="sw-contactslist-deleted">删除</div>
+
       </div>
     </div>
   </div>
@@ -128,6 +135,7 @@ export default class Chat_content extends Vue {
     -webkit-overflow-scrolling: touch;
   }
   .sw-contactslist-outLevel-class {
+    position: relative;
     height: 4vh;
     min-height: 40px;
     background-color: #fdfdfd;
@@ -151,6 +159,17 @@ export default class Chat_content extends Vue {
     div:nth-child(1) {
       display: contents;
     }
+  }
+  .sw-contactslist-forlist {
+    position: relative;
+  }
+  .sw-contactslist-deleted {
+    top: 0px;
+    position: absolute;
+    right: 0px;
+    background: red;
+    width: 13vw;
+    height: 7vh;
   }
 }
 </style>
