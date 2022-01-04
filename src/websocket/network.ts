@@ -45,15 +45,22 @@ function network(socket: Socket, bus: Vue) {
 
 
 function reconnect(socket: Socket, bus: Vue, str: string) {
+    let maxreconnectTry = 10;
     time = setInterval(() => {
         console.log("The time is " + time)
         try {
             if (!socket.connected) {
-                socket.connect()
-                console.log(`reconnecting ${str} ...`)
-                // 通知前端正在断线重连
-                // 0 代表 正在连接...
-                bus.$emit("websocketListener_reconnecting", 0)
+                if(maxreconnectTry) {
+                    socket.connect()
+                    console.log(`reconnecting ${str} ...`)
+                    // 通知前端正在断线重连
+                    // 0 代表 正在连接...
+                    bus.$emit("websocketListener_reconnecting", 0)
+                    maxreconnectTry -= 1;
+                } else {
+                    clearInterval(time)
+                    bus.$emit("websocketListener_reconnecting", 2)
+                }
             }
         } catch {
             console.log("线路不可用...")

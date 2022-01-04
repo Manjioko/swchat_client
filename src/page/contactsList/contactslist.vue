@@ -5,27 +5,31 @@
       @touchstart="touchstartHandle($event)"
       @touchmove="touchmoveHandle($event)"
     >
+      <!-- for list div -->
       <div
+        class="sw-contactslist-forlist-class"
         v-for="user in userArr"
         :key="user.userid"
-        class="sw-contactslist-outLevel-class"
-        @click="gotoChatviewHandle(user.username, user.userid)"
       >
-        <div class="sw-contactslist-left-content">
-          <div class="sw-contactslist-avatar-class">
-            <s-avatar :sSrc="user.avatar" />
-          </div>
+        <!-- outlevel div -->
+        <div
+          class="sw-contactslist-outLevel-class"
+          @click="gotoChatviewHandle(user.username, user.userid)"
+        >
+          <div class="sw-contactslist-left-content">
+            <div class="sw-contactslist-avatar-class">
+              <s-avatar :sSrc="user.avatar" />
+            </div>
 
-          <div class="sw-contactslist-text-class">
-            <div>{{ user.username }}</div>
+            <div class="sw-contactslist-text-class">
+              <div>{{ user.username }}</div>
+            </div>
           </div>
         </div>
-
-        <div>
-          <!-- <div>删除</div> -->
+        <!-- delete div -->
+        <div class="sw-contactlist-delete-outlayout-class">
+          <div class="sw-contactlist-delete-text-class">删除</div>
         </div>
-
-
       </div>
     </div>
   </div>
@@ -51,16 +55,38 @@ export default class Chat_content extends Vue {
   private touchMoveX: number = 0;
   private moveWidth: number = 0;
 
-  private divTarget: EventTarget | null = null;
+  private divTarget: HTMLElement | null = null;
 
   private touchstartHandle(event: TouchEvent) {
     this.touchStartX = event.touches[0].clientX;
+    this.divTarget = event.target as HTMLElement;
   }
 
   private touchmoveHandle(event: TouchEvent) {
     // console.log(event.touches[0].clientX)
     this.touchMoveX = event.touches[0].clientX;
     this.moveWidth = this.touchStartX - this.touchMoveX;
+    console.log(this.moveWidth);
+
+    if (this.moveWidth > 20 && this.moveWidth <= 60) {
+      let classname: string = this.divTarget?.parentElement?.className ?? "";
+      let ele: HTMLElement = this.divTarget?.parentElement as HTMLElement;
+      if (classname === "sw-contactslist-outLevel-class") {
+        if (![...ele.classList].includes("movediv-left-animation")) {
+          // ele.classList.remove("movediv-right-animation");
+          ele.classList.add("movediv-left-animation");
+        }
+      }
+    }
+    if (this.moveWidth < -20 && this.moveWidth >= -60) {
+      let classname: DOMTokenList | '' = this.divTarget?.parentElement?.classList ?? "";
+      let ele: HTMLElement = this.divTarget?.parentElement as HTMLElement;
+      console.log()
+      if ([...classname]?.includes("sw-contactslist-outLevel-class")) {
+        // console.log([...ele.classList])
+        ele.classList.remove("movediv-left-animation");
+      }
+    }
   }
 
   private gotoChatviewHandle(name: string, clientid: string) {
@@ -136,23 +162,32 @@ export default class Chat_content extends Vue {
     -webkit-overflow-scrolling: touch;
   }
   .sw-contactslist-outLevel-class {
-    height: 4vh;
+    // height: 4vh;
     // width: 97vw;
     min-height: 40px;
     background-color: #fdfdfd;
     text-align: start;
-    padding: 1.2vh;
-    border-bottom: 1px solid #e0dfdf;
+    // padding: 1.2vh;
+    // border-bottom: 1px solid #e0dfdf;
+
+    // background: beige;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    left: 0px;
+    z-index: 1;
   }
   .sw-contactslist-avatar-class {
     float: left;
+    padding-top: 12px;
+    padding-left: 10px;
   }
   .sw-contactslist-text-class {
     font-size: 5vw;
-    width: 72vw;
+    width: 50vw;
     // background: red;
     margin-left: 3vw;
-    margin-top: 0.5vh;
+    margin-top: 1.8vh;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -160,6 +195,83 @@ export default class Chat_content extends Vue {
     div:nth-child(1) {
       display: contents;
     }
+  }
+
+  .sw-contactslist-left-content {
+    // padding: 15px;
+    height: 100%;
+  }
+
+  .sw-contactslist-forlist-class {
+    // display: flex;
+    // justify-content: flex-start;
+    // flex-wrap: nowrap;
+    // align-content: center;
+    // align-items: center;
+    width: 100vw;
+    height: 8vh;
+    // background: cadetblue;
+    border-bottom: 1px solid #e0dfdf;
+    position: relative;
+  }
+  .sw-contactlist-delete-outlayout-class {
+    width: 15vw;
+    height: 8vh;
+    background: red;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    right: 0;
+  }
+
+  .movediv-left-animation {
+    animation-name: movdivleft;
+    animation-duration: 0.2s;
+    // animation-delay: 0.2s;
+    animation-direction: normal;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+  }
+  @keyframes movdivleft {
+    30% {
+      transform: translateX(-15px);
+    }
+    50% {
+      transform: translateX(-30px);
+    }
+    to {
+      transform: translateX(-60px);
+    }
+  }
+
+  .movediv-right-animation {
+    animation-name: movdivright;
+    animation-duration: 1s;
+    // animation-delay: 0.2s;
+    animation-direction: normal;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+    // background: green;
+  }
+  @keyframes movdivright {
+    30% {
+      transform: translateX(-60px);
+    }
+    50% {
+      transform: translateX(-30px);
+    }
+    to {
+      transform: translateX(0px);
+    }
+  }
+  .sw-contactlist-delete-text-class {
+    position: relative;
+    top: 30%;
+    color: white;
+
   }
 }
 </style>
