@@ -45,7 +45,7 @@ function network(socket: Socket, bus: Vue) {
 
 
 function reconnect(socket: Socket, bus: Vue, str: string) {
-    let maxreconnectTry = 10;
+    let maxreconnectTry = 50;
     time = setInterval(() => {
         console.log("The time is " + time)
         try {

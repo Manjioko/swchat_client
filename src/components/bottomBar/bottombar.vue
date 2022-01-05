@@ -5,11 +5,8 @@
         @click="handleBottombarClick(0)"
         class="sw-bottombar-iconParentNode-class"
       >
-        <div
-          class="sw-bottombar-reddot-class"
-          v-show="reddot"
-        >
-          <span>{{reddot}}</span>
+        <div class="sw-bottombar-reddot-class" v-show="reddot">
+          <span>{{ reddot }}</span>
         </div>
         <img
           :src="
@@ -19,6 +16,7 @@
           "
           alt="chat"
           class="sw-bottombar-icon-size-class"
+          draggable="false"
         />
         <div
           class="sw-bottombar-imgfontsize-class"
@@ -41,6 +39,7 @@
           "
           alt="contacts"
           class="sw-bottombar-icon-size-class"
+          draggable="false"
         />
         <div
           class="sw-bottombar-imgfontsize-class"
@@ -63,6 +62,7 @@
           "
           alt="my"
           class="sw-bottombar-icon-size-class"
+          draggable="false"
         />
         <div
           class="sw-bottombar-imgfontsize-class"
@@ -97,10 +97,13 @@ export default class Chat_content extends Vue {
   }
   mounted() {}
   created() {
-    this.$bus.$on("userlist_send_reddot_number_to_bottombar",(reddot:number)=>{
-      // console.log(reddot)
-      this.reddot = reddot
-    })
+    this.$bus.$on(
+      "userlist_send_reddot_number_to_bottombar",
+      (reddot: number) => {
+        // console.log(reddot)
+        this.reddot = reddot;
+      }
+    );
   }
 }
 </script>

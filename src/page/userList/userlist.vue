@@ -1,38 +1,63 @@
 <template>
   <div>
-    <div class="sw-userlist" id="sw_userlist">
+    <s-alter
+      :sMsg="showDeleteMsg"
+      v-if="showDeleteMsg"
+      @sYes="deleteYesHandle"
+      @sNo="deleteNoHandle"
+    />
+    <div
+      class="sw-userlist"
+      id="sw_userlist"
+      @touchstart="touchstartHandle($event)"
+      @touchmove="touchmoveHandle($event)"
+    >
       <!-- <div id="xxxxxx"></div> -->
       <div
-        class="sw-userlist-outLevel-class"
+        class="sw-userlist-for-list-class"
         v-for="(item, key) in userObject"
         :key="key"
-        @click="
-          handleGotoChatContent(
-            item.clientname,
-            item.clientid,
-            item.roomid,
-            key
-          )
-        "
       >
-        <div class="sw-userlist-avatar-class">
-          <div
-            class="sw-userlist-reddot-class"
-            v-show="item.unreadchatNumber > 0"
-          >
-            <span>{{ item.unreadchatNumber }}</span>
+        <!-- outlayout -->
+        <div
+          class="sw-userlist-outLevel-class"
+          @click="
+            handleGotoChatContent(
+              item.clientname,
+              item.clientid,
+              item.roomid,
+              key
+            )
+          "
+        >
+          <div class="sw-userlist-avatar-class">
+            <div
+              class="sw-userlist-reddot-class"
+              v-show="item.unreadchatNumber > 0"
+            >
+              <span>{{ item.unreadchatNumber }}</span>
+            </div>
+            <div class="sw-userlist-avatar-img-class">
+              <s-avatar :sSrc="item.avatar" :sWidth="50" :sHeight="50" />
+            </div>
           </div>
-          <s-avatar :sSrc="item.avatar" :sWidth="50" :sHeight="50" />
-        </div>
 
-        <div class="sw-userlist-text-class">
-          <div>{{ item.clientname }}</div>
-          <div class="sw-userlist-chatcontent-class">
-            {{ item.lastContent }}
+          <div class="sw-userlist-text-class">
+            <div>{{ item.clientname }}</div>
+            <div class="sw-userlist-chatcontent-class">
+              {{ item.lastContent }}
+            </div>
+          </div>
+          <div class="sw-userlist-time-class">
+            <span>上午 11:53</span>
           </div>
         </div>
-        <div class="sw-userlist-time-class">
-          <span>上午 11:53</span>
+        <!-- delete -->
+        <div
+          class="sw-userlist-delete-outlayout-class"
+          @click="deleteHandle(item.clientname, item.clientid)"
+        >
+          <div class="sw-userlist-delete-text-class">删除</div>
         </div>
       </div>
     </div>
@@ -52,13 +77,73 @@ export default class Chat_content extends Vue {
   private userObject: any = {};
   private reddot: number = 0;
 
-  @Watch('reddot')
-    handleReddot(newreddot:number,oldreddot:number) {
-      if(newreddot !== oldreddot) {
-        // console.log(`The red dot is ${newreddot}`)
-        this.$bus.$emit("userlist_send_reddot_number_to_bottombar",newreddot)
+  //提示用户删除操作
+  // private isShowDeleteMsg: boolean = false;
+  private showDeleteMsg: string = "";
+  private deletclientId: string = "";
+
+  private touchStartX: number = 0;
+  private touchMoveX: number = 0;
+  private moveWidth: number = 0;
+  private divTarget: HTMLElement | null = null;
+
+  @Watch("reddot")
+  handleReddot(newreddot: number, oldreddot: number) {
+    if (newreddot !== oldreddot) {
+      // console.log(`The red dot is ${newreddot}`)
+      this.$bus.$emit("userlist_send_reddot_number_to_bottombar", newreddot);
+    }
+  }
+
+  private deleteHandle(name: string, id: string) {
+    this.showDeleteMsg = `确定删除 ${name} 吗?`;
+    this.deletclientId = id
+
+  }
+  private deleteYesHandle() {
+    this.showDeleteMsg = ''
+    delete this.userObject[this.deletclientId]
+    this.deletclientId = ''
+  }
+  private deleteNoHandle() {
+    this.showDeleteMsg = ''
+  }
+
+  private touchstartHandle(event: TouchEvent) {
+    this.touchStartX = event.touches[0].clientX;
+    this.divTarget = event.target as HTMLElement;
+
+    while (
+      this.divTarget &&
+      ![...this.divTarget.classList].includes("sw-userlist-outLevel-class")
+    ) {
+      this.divTarget = this.divTarget?.parentElement as HTMLElement;
+      // console.log(this.divTarget);
+    }
+  }
+
+  private touchmoveHandle(event: TouchEvent) {
+    this.touchMoveX = event.touches[0].clientX;
+    this.moveWidth = this.touchStartX - this.touchMoveX;
+
+    if (this.moveWidth > 20 && this.moveWidth <= 60) {
+      this.divTarget?.classList.remove("movediv-right-animation");
+      this.divTarget?.classList.add("movediv-left-animation");
+    }
+    if (this.moveWidth < -20 && this.moveWidth >= -60) {
+      let left: boolean = Array.from(this.divTarget?.classList ?? []).includes(
+        "movediv-left-animation"
+      );
+      if (left) {
+        this.divTarget?.classList.add("movediv-right-animation");
+        let classlist = this.divTarget?.classList;
+        this.divTarget?.classList.remove("movediv-left-animation");
+        setTimeout(() => {
+          classlist?.remove("movediv-right-animation");
+        }, 200);
       }
     }
+  }
 
   private handleGotoChatContent(
     clientname: string,
@@ -208,25 +293,45 @@ export default class Chat_content extends Vue {
     padding-bottom: 3vh;
     -webkit-overflow-scrolling: touch;
   }
-  .sw-userlist-outLevel-class {
-    // width: 95vw;
-    height: 6vh;
-    min-height: 50px;
-    background-color: rgb(253, 253, 253);
-    text-align: start;
-    padding: 1.2vh;
+  .sw-userlist-for-list-class {
     border-bottom: 1px solid #e0dfdf;
-    // border-top: 1px solid #e0dfdf;
+    position: relative;
+    width: 100vw;
+    height: 75px;
+  }
+  .sw-userlist-outLevel-class {
+    // // width: 95vw;
+    // height: 6vh;
+    // min-height: 50px;
+    // background-color: rgb(253, 253, 253);
+    // text-align: start;
+    // padding: 1.2vh;
+    // border-bottom: 1px solid #e0dfdf;
+    // // border-top: 1px solid #e0dfdf;
+
+    height: 100%;
+    width: 100%;
+    min-height: 75px;
+    background-color: #fdfdfd;
+    text-align: start;
+    // border-bottom: 1px solid #e0dfdf;
+    z-index: 1;
+    position: relative;
+    left: 0;
   }
   .sw-userlist-avatar-class {
     float: left;
     position: relative;
   }
+  .sw-userlist-avatar-img-class {
+    padding: 12px;
+    float: left;
+  }
   .sw-userlist-text-class {
     font-size: 5.5vw;
     width: 60vw;
     // height: 7vh;
-    margin-left: 3vw;
+    margin-top: 2.3vh;
     // background-color: white;
     overflow: hidden;
     white-space: nowrap;
@@ -261,11 +366,75 @@ export default class Chat_content extends Vue {
     font-size: 14px;
     color: white;
     position: absolute;
-    right: -8px;
-    top: -6px;
+    right: 5px;
+    top: 5px;
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+  .sw-userlist-delete-outlayout-class {
+    width: 60px;
+    height: 75px;
+    background: red;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    right: 0;
+  }
+  .sw-userlist-delete-text-class {
+    position: relative;
+    top: 30%;
+    color: white;
+    user-select: none;
+  }
+
+  .movediv-left-animation {
+    animation-name: movdivleft;
+    animation-duration: 0.2s;
+    // animation-delay: 0.2s;
+    animation-direction: normal;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+  }
+  @keyframes movdivleft {
+    30% {
+      // transform: translateX(-50px);
+      left: -10px;
+    }
+    50% {
+      // transform: translateX(-90px);
+      left: -40px;
+    }
+    to {
+      // transform: translateX(-120px);
+      left: -60px;
+    }
+  }
+
+  .movediv-right-animation {
+    animation-name: movdivright;
+    animation-duration: 0.2s;
+    // animation-delay: 0.2s;
+    animation-direction: reverse;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+  }
+  @keyframes movdivright {
+    30% {
+      // transform: translateX(-50px);
+      left: -10px;
+    }
+    50% {
+      // transform: translateX(-90px);
+      left: -40px;
+    }
+    to {
+      // transform: translateX(-120px);
+      left: -60px;
+    }
   }
 }
 </style>

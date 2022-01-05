@@ -7845,12 +7845,21 @@ svgo@^1.0.0:
     unquote "~1.1.1"
     util.promisify "~1.0.0"
 
-swallow-ui@^0.1.5:
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/swallow-ui/-/swallow-ui-0.1.5.tgz#e52a8fd64eb5130a54af0868ae061ea554b0e7d1"
-  integrity sha512-XbVGlYd4JwkRYJKHpAAULzbppcVRZLLEI/62DrErowxUBM8RWpSIM4TQBo/d3e57fgQ+qpC/lVJocyeaA23c1A==
+swallow-ui@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/swallow-ui/-/swallow-ui-0.1.7.tgz#62b13cf94f962dd9417ea719b803c6e3b78625eb"
+  integrity sha512-oSaUmKTw2x+UJAyfunQw/L2+DB3oUUClQeVnXmXUrnmfoSMBWNqlqtzaokqe9jvuPlUrhM32RVctOb6c1FCQ5g==
   dependencies:
     core-js "^3.6.5"
+    vue "^2.6.11"
+
+swallow-ui@^0.1.8:
+  version "0.1.8"
+  resolved "https://registry.yarnpkg.com/swallow-ui/-/swallow-ui-0.1.8.tgz#e07be509225e16b1954fb39f84091ee74285a6a0"
+  integrity sha512-Kqq1xtqo4V4DysztN0CUjWBZGM4A7BPmpHfX42kU67DVXoe31TcXYKf2AlcHObDSHoilj+Hq5PlrkqNTGiu4Jw==
+  dependencies:
+    core-js "^3.6.5"
+    swallow-ui "^0.1.7"
     vue "^2.6.11"
 
 tapable@^1.0.0, tapable@^1.1.3:

@@ -18,7 +18,7 @@
         >
           <div class="sw-contactslist-left-content">
             <div class="sw-contactslist-avatar-class">
-              <s-avatar :sSrc="user.avatar" />
+              <s-avatar :sSrc="user.avatar" draggable="false" />
             </div>
 
             <div class="sw-contactslist-text-class">
@@ -30,13 +30,17 @@
         <div class="sw-contactlist-delete-outlayout-class">
           <div class="sw-contactlist-delete-text-class">删除</div>
         </div>
+        <div class="sw-contactlist-remark-outlayout-class">
+          <div class="sw-contactlist-remark-text-class">备注</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop } from "vue-property-decorator";
+import { Component, Vue, Prop,Watch } from "vue-property-decorator";
+import { Route } from "vue-router";
 
 interface userArrStruct {
   readonly username: String;
@@ -48,6 +52,8 @@ interface userArrStruct {
   components: {},
 })
 export default class Chat_content extends Vue {
+
+  // @Prop(Array) private toggle!:Array<boolean>
   private userArr: Array<userArrStruct> = [];
   private clientName: string = "";
 
@@ -60,34 +66,39 @@ export default class Chat_content extends Vue {
   private touchstartHandle(event: TouchEvent) {
     this.touchStartX = event.touches[0].clientX;
     this.divTarget = event.target as HTMLElement;
+
+    while (
+      this.divTarget &&
+      ![...this.divTarget.classList].includes("sw-contactslist-outLevel-class")
+    ) {
+      this.divTarget = this.divTarget?.parentElement as HTMLElement;
+      // console.log(this.divTarget);
+    }
   }
 
   private touchmoveHandle(event: TouchEvent) {
-    // console.log(event.touches[0].clientX)
     this.touchMoveX = event.touches[0].clientX;
     this.moveWidth = this.touchStartX - this.touchMoveX;
-    console.log(this.moveWidth);
 
     if (this.moveWidth > 20 && this.moveWidth <= 60) {
-      let classname: string = this.divTarget?.parentElement?.className ?? "";
-      let ele: HTMLElement = this.divTarget?.parentElement as HTMLElement;
-      if (classname === "sw-contactslist-outLevel-class") {
-        if (![...ele.classList].includes("movediv-left-animation")) {
-          // ele.classList.remove("movediv-right-animation");
-          ele.classList.add("movediv-left-animation");
-        }
-      }
+      this.divTarget?.classList.remove("movediv-right-animation");
+      this.divTarget?.classList.add("movediv-left-animation");
     }
     if (this.moveWidth < -20 && this.moveWidth >= -60) {
-      let classname: DOMTokenList | '' = this.divTarget?.parentElement?.classList ?? "";
-      let ele: HTMLElement = this.divTarget?.parentElement as HTMLElement;
-      console.log()
-      if ([...classname]?.includes("sw-contactslist-outLevel-class")) {
-        // console.log([...ele.classList])
-        ele.classList.remove("movediv-left-animation");
+      let left: boolean = Array.from(this.divTarget?.classList ?? []).includes(
+        "movediv-left-animation"
+      );
+      if (left) {
+        this.divTarget?.classList.add("movediv-right-animation");
+        let classlist = this.divTarget?.classList
+        this.divTarget?.classList.remove("movediv-left-animation");
+        setTimeout(() => {
+          classlist?.remove("movediv-right-animation");
+        }, 500);
       }
     }
   }
+
 
   private gotoChatviewHandle(name: string, clientid: string) {
     // 设置roomid
@@ -195,6 +206,7 @@ export default class Chat_content extends Vue {
     div:nth-child(1) {
       display: contents;
     }
+    user-select: none;
   }
 
   .sw-contactslist-left-content {
@@ -215,7 +227,7 @@ export default class Chat_content extends Vue {
     position: relative;
   }
   .sw-contactlist-delete-outlayout-class {
-    width: 15vw;
+    width: 60px;
     height: 8vh;
     background: red;
     overflow: hidden;
@@ -227,9 +239,26 @@ export default class Chat_content extends Vue {
     right: 0;
   }
 
+  .sw-contactlist-delete-text-class {
+    position: relative;
+    top: 30%;
+    color: white;
+    user-select: none;
+  }
+
+  .sw-contactlist-remark-outlayout-class {
+    @extend .sw-contactlist-delete-outlayout-class;
+    background-color: green;
+    right: 60px;
+  }
+
+  .sw-contactlist-remark-text-class {
+    @extend .sw-contactlist-delete-text-class;
+  }
+
   .movediv-left-animation {
     animation-name: movdivleft;
-    animation-duration: 0.2s;
+    animation-duration: 0.5s;
     // animation-delay: 0.2s;
     animation-direction: normal;
     animation-fill-mode: forwards;
@@ -237,41 +266,40 @@ export default class Chat_content extends Vue {
   }
   @keyframes movdivleft {
     30% {
-      transform: translateX(-15px);
+      // transform: translateX(-50px);
+      left: -50px;
     }
     50% {
-      transform: translateX(-30px);
+      // transform: translateX(-90px);
+      left: -90px;
     }
     to {
-      transform: translateX(-60px);
+      // transform: translateX(-120px);
+      left: -120px;
     }
   }
 
   .movediv-right-animation {
     animation-name: movdivright;
-    animation-duration: 1s;
+    animation-duration: 0.5s;
     // animation-delay: 0.2s;
-    animation-direction: normal;
+    animation-direction: reverse;
     animation-fill-mode: forwards;
     animation-timing-function: linear;
-    // background: green;
   }
   @keyframes movdivright {
     30% {
-      transform: translateX(-60px);
+      // transform: translateX(-50px);
+      left: -50px;
     }
     50% {
-      transform: translateX(-30px);
+      // transform: translateX(-90px);
+      left: -90px;
     }
     to {
-      transform: translateX(0px);
+      // transform: translateX(-120px);
+      left: -120px;
     }
-  }
-  .sw-contactlist-delete-text-class {
-    position: relative;
-    top: 30%;
-    color: white;
-
   }
 }
 </style>
