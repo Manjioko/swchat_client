@@ -21,13 +21,8 @@
         <!-- outlayout -->
         <div
           class="sw-userlist-outLevel-class"
-          @click="
-            handleGotoChatContent(
-              item.clientname,
-              item.clientid,
-              item.roomid,
-              key
-            )
+          @touchend="
+            touchendHandle(item.clientname, item.clientid, item.roomid, key)
           "
         >
           <div class="sw-userlist-avatar-class">
@@ -87,6 +82,8 @@ export default class Chat_content extends Vue {
   private moveWidth: number = 0;
   private divTarget: HTMLElement | null = null;
 
+  private canRoute: boolean = true
+
   @Watch("reddot")
   handleReddot(newreddot: number, oldreddot: number) {
     if (newreddot !== oldreddot) {
@@ -97,16 +94,15 @@ export default class Chat_content extends Vue {
 
   private deleteHandle(name: string, id: string) {
     this.showDeleteMsg = `确定删除 ${name} 吗?`;
-    this.deletclientId = id
-
+    this.deletclientId = id;
   }
   private deleteYesHandle() {
-    this.showDeleteMsg = ''
-    delete this.userObject[this.deletclientId]
-    this.deletclientId = ''
+    this.showDeleteMsg = "";
+    delete this.userObject[this.deletclientId];
+    this.deletclientId = "";
   }
   private deleteNoHandle() {
-    this.showDeleteMsg = ''
+    this.showDeleteMsg = "";
   }
 
   private touchstartHandle(event: TouchEvent) {
@@ -118,31 +114,78 @@ export default class Chat_content extends Vue {
       ![...this.divTarget.classList].includes("sw-userlist-outLevel-class")
     ) {
       this.divTarget = this.divTarget?.parentElement as HTMLElement;
-      // console.log(this.divTarget);
+    }
+
+    let w: string = this.divTarget?.style.left ?? "0";
+    if (parseInt(w) !== 0) {
+      this.canRoute = false
+      if (this.divTarget?.style) {
+        this.divTarget.style.transitionDuration = "0.5s";
+        this.divTarget.style.transitionTimingFunction = "ease";
+        this.divTarget.style.left = "0px";
+      }
     }
   }
 
   private touchmoveHandle(event: TouchEvent) {
+    if (this.divTarget?.style.transition) this.divTarget.style.transition = "";
+    this.canRoute = false;
     this.touchMoveX = event.touches[0].clientX;
     this.moveWidth = this.touchStartX - this.touchMoveX;
 
-    if (this.moveWidth > 20 && this.moveWidth <= 60) {
-      this.divTarget?.classList.remove("movediv-right-animation");
-      this.divTarget?.classList.add("movediv-left-animation");
-    }
-    if (this.moveWidth < -20 && this.moveWidth >= -60) {
-      let left: boolean = Array.from(this.divTarget?.classList ?? []).includes(
-        "movediv-left-animation"
-      );
-      if (left) {
-        this.divTarget?.classList.add("movediv-right-animation");
-        let classlist = this.divTarget?.classList;
-        this.divTarget?.classList.remove("movediv-left-animation");
-        setTimeout(() => {
-          classlist?.remove("movediv-right-animation");
-        }, 200);
+    if (this.moveWidth > 0) {
+      if (this.divTarget?.style) {
+        let w: number = parseInt(
+          this.divTarget.style.left ? this.divTarget.style.left : "0"
+        );
+        if (w > -60) this.divTarget.style.left = w - 3 + "px";
       }
     }
+    if (this.moveWidth < 0) {
+      if (this.divTarget?.style) {
+        let w: number = parseInt(this.divTarget.style.left);
+        if (w < 0) this.divTarget.style.left = w + 3 + "px";
+      }
+    }
+  }
+  private touchendHandle(
+    clientname: string,
+    clientid: string,
+    roomid: string,
+    key: string
+  ) {
+    // console.log(e)
+    if (this.divTarget?.style) {
+      let w: number = parseInt(this.divTarget.style.left);
+      this.divTarget.style.transitionDuration = "0.2s";
+      this.divTarget.style.transitionTimingFunction = "ease";
+      // console.log(w);
+      // 分两种情况
+      // 向左划
+      if (this.moveWidth > 0) {
+        if (w < -10) {
+          this.divTarget.style.left = "-60px";
+        } else {
+          this.divTarget.style.left = "0px";
+        }
+      } else {
+        // 向右划
+        if (w > -50) {
+          this.divTarget.style.left = "0px";
+        } else {
+          this.divTarget.style.left = "-60px";
+        }
+      }
+    }
+
+    // console.log("this.movewidth:" + this.moveWidth)
+    // 导航到chatview
+    let w: string = this.divTarget?.style.left ?? '0px'
+    if (this.canRoute) {
+      this.handleGotoChatContent(clientname, clientid, roomid, key);
+      // this.handleGotoChatContent()
+    }
+    this.canRoute = true
   }
 
   private handleGotoChatContent(
@@ -191,7 +234,7 @@ export default class Chat_content extends Vue {
         window.Notification.requestPermission();
       }
     } else {
-      console.log("你的浏览器不支持此特性，请下载谷歌浏览器试用该功能");
+      console.log("浏览器不支持notification");
     }
   }
 
@@ -318,6 +361,9 @@ export default class Chat_content extends Vue {
     z-index: 1;
     position: relative;
     left: 0;
+    // transition-duration: 0.3s;
+    // transition-property: all;
+    // transition-timing-function: ease;
   }
   .sw-userlist-avatar-class {
     float: left;
@@ -391,50 +437,5 @@ export default class Chat_content extends Vue {
     user-select: none;
   }
 
-  .movediv-left-animation {
-    animation-name: movdivleft;
-    animation-duration: 0.2s;
-    // animation-delay: 0.2s;
-    animation-direction: normal;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear;
-  }
-  @keyframes movdivleft {
-    30% {
-      // transform: translateX(-50px);
-      left: -10px;
-    }
-    50% {
-      // transform: translateX(-90px);
-      left: -40px;
-    }
-    to {
-      // transform: translateX(-120px);
-      left: -60px;
-    }
-  }
-
-  .movediv-right-animation {
-    animation-name: movdivright;
-    animation-duration: 0.2s;
-    // animation-delay: 0.2s;
-    animation-direction: reverse;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear;
-  }
-  @keyframes movdivright {
-    30% {
-      // transform: translateX(-50px);
-      left: -10px;
-    }
-    50% {
-      // transform: translateX(-90px);
-      left: -40px;
-    }
-    to {
-      // transform: translateX(-120px);
-      left: -60px;
-    }
-  }
 }
 </style>

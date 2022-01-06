@@ -78,12 +78,13 @@ function handleSocket(socket: Socket, bus: Vue) {
     })
 
     // 重新连线后服务器会发送断线期间别人发送给你的信息
-    socket.on("testreconnect", (chatBox: ChatBoxtype) => {
+    socket.on("testreconnect", (chatBox: ChatBoxtype,cb) => {
         // 将消息发送回 viewchat 组件
         bus.$emit("websocketListener_get_disconnect_chat_tmp_chatview", chatBox)
         // 缓存到聊天记录列表
         chatTmpData[chatBox.roomid as string].push(chatBox)
         // console.log(data)
+        cb("oookkk")
     })
 
 }

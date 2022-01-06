@@ -116,6 +116,7 @@ export default class Chat_content extends Vue {
     height: 12vh;
     width: 100vw;
     background: rgb(245, 239, 239);
+    user-select: none;
   }
   .sw-bottombar-iconlist-class {
     display: flex;

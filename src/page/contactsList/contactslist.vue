@@ -14,7 +14,7 @@
         <!-- outlevel div -->
         <div
           class="sw-contactslist-outLevel-class"
-          @click="gotoChatviewHandle(user.username, user.userid)"
+          @touchend="touchendHandle(user.username, user.userid)"
         >
           <div class="sw-contactslist-left-content">
             <div class="sw-contactslist-avatar-class">
@@ -62,6 +62,7 @@ export default class Chat_content extends Vue {
   private moveWidth: number = 0;
 
   private divTarget: HTMLElement | null = null;
+  private canRoute: boolean = true 
 
   private touchstartHandle(event: TouchEvent) {
     this.touchStartX = event.touches[0].clientX;
@@ -72,31 +73,79 @@ export default class Chat_content extends Vue {
       ![...this.divTarget.classList].includes("sw-contactslist-outLevel-class")
     ) {
       this.divTarget = this.divTarget?.parentElement as HTMLElement;
-      // console.log(this.divTarget);
+    }
+
+    let w: string = this.divTarget?.style.left ?? "0";
+    if (parseInt(w) !== 0) {
+      this.canRoute = false
+      if (this.divTarget?.style) {
+        this.divTarget.style.transitionDuration = "0.5s";
+        this.divTarget.style.transitionTimingFunction = "ease";
+        this.divTarget.style.left = "0px";
+      }
     }
   }
 
   private touchmoveHandle(event: TouchEvent) {
+    if (this.divTarget?.style.transition) this.divTarget.style.transition = "";
+    this.canRoute = false;
     this.touchMoveX = event.touches[0].clientX;
     this.moveWidth = this.touchStartX - this.touchMoveX;
+    // console.log(this.moveWidth)
 
-    if (this.moveWidth > 20 && this.moveWidth <= 60) {
-      this.divTarget?.classList.remove("movediv-right-animation");
-      this.divTarget?.classList.add("movediv-left-animation");
-    }
-    if (this.moveWidth < -20 && this.moveWidth >= -60) {
-      let left: boolean = Array.from(this.divTarget?.classList ?? []).includes(
-        "movediv-left-animation"
-      );
-      if (left) {
-        this.divTarget?.classList.add("movediv-right-animation");
-        let classlist = this.divTarget?.classList
-        this.divTarget?.classList.remove("movediv-left-animation");
-        setTimeout(() => {
-          classlist?.remove("movediv-right-animation");
-        }, 500);
+    if (this.moveWidth > 0) {
+      if (this.divTarget?.style) {
+        let w: number = parseInt(
+          this.divTarget.style.left ? this.divTarget.style.left : "0"
+        );
+        console.log(w)
+        if (w > -120 && w !== -120) this.divTarget.style.left = w - 3 + "px";
       }
     }
+    if (this.moveWidth < 0) {
+      if (this.divTarget?.style) {
+        let w: number = parseInt(this.divTarget.style.left);
+        if (w < 0) this.divTarget.style.left = w + 3 + "px";
+      }
+    }
+  }
+
+  private touchendHandle(
+    name: string,
+    id: string
+  ) {
+    // console.log(e)
+    if (this.divTarget?.style) {
+      let w: number = parseInt(this.divTarget.style.left);
+      this.divTarget.style.transitionDuration = "0.2s";
+      this.divTarget.style.transitionTimingFunction = "ease";
+      // console.log(w);
+      // 分两种情况
+      // 向左划
+      if (this.moveWidth > 0) {
+        if (w < -10) {
+          this.divTarget.style.left = "-120px";
+        } else {
+          this.divTarget.style.left = "0px";
+        }
+      } else {
+        // 向右划
+        if (w > -50) {
+          this.divTarget.style.left = "0px";
+        } else {
+          this.divTarget.style.left = "-120px";
+        }
+      }
+    }
+
+    // console.log("this.movewidth:" + this.moveWidth)
+    // 导航到chatview
+    let w: string = this.divTarget?.style.left ?? '0px'
+    if (this.canRoute) {
+      this.gotoChatviewHandle(name, id);
+      // this.handleGotoChatContent()
+    }
+    this.canRoute = true
   }
 
 
@@ -248,7 +297,7 @@ export default class Chat_content extends Vue {
 
   .sw-contactlist-remark-outlayout-class {
     @extend .sw-contactlist-delete-outlayout-class;
-    background-color: green;
+    background-color: rgb(126, 126, 126);
     right: 60px;
   }
 
@@ -256,50 +305,5 @@ export default class Chat_content extends Vue {
     @extend .sw-contactlist-delete-text-class;
   }
 
-  .movediv-left-animation {
-    animation-name: movdivleft;
-    animation-duration: 0.5s;
-    // animation-delay: 0.2s;
-    animation-direction: normal;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear;
-  }
-  @keyframes movdivleft {
-    30% {
-      // transform: translateX(-50px);
-      left: -50px;
-    }
-    50% {
-      // transform: translateX(-90px);
-      left: -90px;
-    }
-    to {
-      // transform: translateX(-120px);
-      left: -120px;
-    }
-  }
-
-  .movediv-right-animation {
-    animation-name: movdivright;
-    animation-duration: 0.5s;
-    // animation-delay: 0.2s;
-    animation-direction: reverse;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear;
-  }
-  @keyframes movdivright {
-    30% {
-      // transform: translateX(-50px);
-      left: -50px;
-    }
-    50% {
-      // transform: translateX(-90px);
-      left: -90px;
-    }
-    to {
-      // transform: translateX(-120px);
-      left: -120px;
-    }
-  }
 }
 </style>
