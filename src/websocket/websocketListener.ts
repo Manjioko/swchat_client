@@ -84,7 +84,7 @@ function handleSocket(socket: Socket, bus: Vue) {
         // 缓存到聊天记录列表
         chatTmpData[chatBox.roomid as string].push(chatBox)
         // console.log(data)
-        cb("oookkk")
+        cb("ok")
     })
 
 }

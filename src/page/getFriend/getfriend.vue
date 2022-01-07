@@ -39,7 +39,7 @@ export default class getFriend extends Vue {
     private friendname: string = ''
 
     private getFriendSubmitHandle() {
-        console.log(this.friendname)
+        // console.log(this.friendname)
         this.$axios
         .post(this.$api.getFriend, {
             friendname:this.friendname,

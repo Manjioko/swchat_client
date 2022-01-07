@@ -4,6 +4,7 @@ class ApiUrl {
     getFriend: string;
     registerandlogin: string;
     getMyfriendList: string;
+    removeFriend: string;
     constructor() {
         // http://203.174.57.179:3000/
         this.rootUrl = "http://203.174.57.179:3000"
@@ -15,6 +16,8 @@ class ApiUrl {
         this.registerandlogin = `${this.rootUrl}/registerandlogin`
         // /getmyfriendlist
         this.getMyfriendList = `${this.rootUrl}/getmyfriendlist`
+        // /removefriend
+        this.removeFriend = `${this.rootUrl}/removefriend`
     }
 }
 

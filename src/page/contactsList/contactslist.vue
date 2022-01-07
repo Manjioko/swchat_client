@@ -1,5 +1,11 @@
 <template>
   <div>
+    <s-alter
+      :sMsg="showDeleteMsg"
+      v-if="showDeleteMsg"
+      @sYes="deleteYesHandle"
+      @sNo="deleteNoHandle"
+    />
     <div
       class="sw-contactslist"
       @touchstart="touchstartHandle($event)"
@@ -27,10 +33,16 @@
           </div>
         </div>
         <!-- delete div -->
-        <div class="sw-contactlist-delete-outlayout-class">
+        <div
+          class="sw-contactlist-delete-outlayout-class"
+          @click="deleteHandle(user.userid, user.username)"
+        >
           <div class="sw-contactlist-delete-text-class">删除</div>
         </div>
-        <div class="sw-contactlist-remark-outlayout-class">
+        <div
+          class="sw-contactlist-remark-outlayout-class"
+          @click="remarkHandle(user.userid)"
+        >
           <div class="sw-contactlist-remark-text-class">备注</div>
         </div>
       </div>
@@ -39,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue, Prop,Watch } from "vue-property-decorator";
+import { Component, Vue, Prop, Watch } from "vue-property-decorator";
 import { Route } from "vue-router";
 
 interface userArrStruct {
@@ -52,7 +64,6 @@ interface userArrStruct {
   components: {},
 })
 export default class Chat_content extends Vue {
-
   // @Prop(Array) private toggle!:Array<boolean>
   private userArr: Array<userArrStruct> = [];
   private clientName: string = "";
@@ -62,7 +73,9 @@ export default class Chat_content extends Vue {
   private moveWidth: number = 0;
 
   private divTarget: HTMLElement | null = null;
-  private canRoute: boolean = true 
+  private canRoute: boolean = true;
+  private showDeleteMsg: string = "";
+  private clientid: string = "";
 
   private touchstartHandle(event: TouchEvent) {
     this.touchStartX = event.touches[0].clientX;
@@ -77,7 +90,7 @@ export default class Chat_content extends Vue {
 
     let w: string = this.divTarget?.style.left ?? "0";
     if (parseInt(w) !== 0) {
-      this.canRoute = false
+      this.canRoute = false;
       if (this.divTarget?.style) {
         this.divTarget.style.transitionDuration = "0.5s";
         this.divTarget.style.transitionTimingFunction = "ease";
@@ -98,7 +111,6 @@ export default class Chat_content extends Vue {
         let w: number = parseInt(
           this.divTarget.style.left ? this.divTarget.style.left : "0"
         );
-        console.log(w)
         if (w > -120 && w !== -120) this.divTarget.style.left = w - 3 + "px";
       }
     }
@@ -110,10 +122,7 @@ export default class Chat_content extends Vue {
     }
   }
 
-  private touchendHandle(
-    name: string,
-    id: string
-  ) {
+  private touchendHandle(name: string, id: string) {
     // console.log(e)
     if (this.divTarget?.style) {
       let w: number = parseInt(this.divTarget.style.left);
@@ -140,14 +149,13 @@ export default class Chat_content extends Vue {
 
     // console.log("this.movewidth:" + this.moveWidth)
     // 导航到chatview
-    let w: string = this.divTarget?.style.left ?? '0px'
+    let w: string = this.divTarget?.style.left ?? "0px";
     if (this.canRoute) {
       this.gotoChatviewHandle(name, id);
       // this.handleGotoChatContent()
     }
-    this.canRoute = true
+    this.canRoute = true;
   }
-
 
   private gotoChatviewHandle(name: string, clientid: string) {
     // 设置roomid
@@ -176,6 +184,34 @@ export default class Chat_content extends Vue {
       },
     });
   }
+
+  private deleteHandle(clientid: string, clientname: string) {
+    this.showDeleteMsg = `确定要删除 ${clientname} 吗?`;
+    this.clientid = clientid;
+  }
+
+  private deleteYesHandle() {
+    this.$axios
+      .post(this.$api.removeFriend, {
+        userid: this.$store.getLocalUserid(),
+        clientid: this.clientid,
+      })
+      .then((res: any) => {
+        console.log(res);
+        if(res.data) {
+          this.userArr = this.userArr.filter(e => e.userid !== this.clientid)
+        }
+      })
+      .catch((err: any) => {
+        console.log(err);
+      });
+    this.showDeleteMsg = "";
+  }
+  private deleteNoHandle() {
+    this.showDeleteMsg = "";
+  }
+
+  private remarkHandle(clientid: string) {}
 
   beforeCreate() {
     this.$axios
@@ -304,6 +340,5 @@ export default class Chat_content extends Vue {
   .sw-contactlist-remark-text-class {
     @extend .sw-contactlist-delete-text-class;
   }
-
 }
 </style>
