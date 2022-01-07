@@ -2,23 +2,24 @@
   <div>
     <!-- <div class="loginview-logintext-class">登陆燕语</div> -->
     <topbar :showBack="true" />
-    <div class="getFriend">
-      <div class="getFriend-layout-class">
-        <div class="getFriend-friendname-class">
-          <span class="getFriend-nametext-class">好友</span>
+    <div class="remarkFriend">
+      <div class="remarkFriend-layout-class">
+          <div class="remarkFriend-beforefriendname-class">{{friendName}}</div>
+        <div class="remarkFriend-friendname-class">
+          <span class="remarkFriend-nametext-class">新备注:</span>
           <input
             type="text"
-            v-model="friendname"
-            class="getFriend-nameinput-class"
+            v-model="remarkfriendname"
+            class="remarkFriend-nameinput-class"
           />
         </div>
 
-        <div class="getFriend-addbutton-class">
+        <div class="remarkFriend-addbutton-class">
           <button
-            class="getFriend-addbutton-submit-button-class"
-            @click="getFriendSubmitHandle"
+            class="remarkFriend-addbutton-submit-button-class"
+            @click="remarkFriendHandle"
           >
-            添加好友
+            添加备注
           </button>
         </div>
       </div>
@@ -35,38 +36,19 @@ import topbar from "@/components/topBar/topbar.vue"
     topbar,
   },
 })
-export default class getFriend extends Vue {
-    private friendname: string = ''
+export default class remarkFriend extends Vue {
+    private remarkfriendname: string = ''
+    private friendName: string = this.$store.getLocalClientname()
 
-    private getFriendSubmitHandle() {
-        // console.log(this.friendname)
+    private remarkFriendHandle() {
         this.$axios
-        .post(this.$api.getFriend, {
-            friendname:this.friendname,
+        .post(this.$api.remarkFriend, {
+            clientAlias:this.remarkfriendname,
+            clientid: this.$store.getLocalClientid(),
             userid: this.$store.getLocalUserid()
         })
         .then((response: any) => {
-            console.log(response)
-            let addfriend = response.data.addfriend
-            let why = response.data.why
-            if(addfriend) {
-              alert("好友添加成功")
-              // 让contactslist重新更新好友数据
-              this.$bus.$emit("getfriend_refresh_page_contactslist",addfriend)
-              this.$router.go(-1)
-            } else {
-              switch(why) {
-                case 0:
-                    alert("不能添加自己作为好友")
-                    return
-                case 1:
-                    alert("账号不存在，请重新输入")
-                    return
-                case 3:
-                    alert("不能重复添加已存在的好友")
-                    return
-              }
-            }
+            console.log(response.data)
         })
         .catch((error: any) => {
           console.log(error);
@@ -78,7 +60,7 @@ export default class getFriend extends Vue {
 
 <style scoped lang="scss">
 @media screen and(max-width: 600px) {
-  .getFriend {
+  .remarkFriend {
     width: 100vw;
     height: 50vh;
     // background-color: cadetblue;
@@ -87,7 +69,7 @@ export default class getFriend extends Vue {
     justify-content: center;
     align-items: center;
   }
-  .getFriend-nameinput-class {
+  .remarkFriend-nameinput-class {
     border: none;
     border-radius: 0;
     border-bottom: 1px solid rgb(121, 118, 118);
@@ -97,7 +79,7 @@ export default class getFriend extends Vue {
     outline: none;
     font-size: 20px;
   }
-  .getFriend-layout-class {
+  .remarkFriend-layout-class {
     background: #fff;
     height: 22vh;
     min-height: 200px;
@@ -106,20 +88,20 @@ export default class getFriend extends Vue {
     padding-top: 30px;
     box-shadow: 3px 2px 10px #afaeae;
   }
-  .getFriend-friendname-class {
+  .remarkFriend-friendname-class {
     padding: 15px;
   }
-  .getFriend-nametext-class {
+  .remarkFriend-nametext-class {
     font-size: 20px;
     margin-right: 8px;
     vertical-align: sub;
     color: #7e7e7e;
   }
-  .getFriend-addbutton-class {
+  .remarkFriend-addbutton-class {
     display: inline-block;
     margin: 20px;
   }
-  .getFriend-addbutton-submit-button-class {
+  .remarkFriend-addbutton-submit-button-class {
     width: 80vw;
     height: 40px;
     border: none;
@@ -134,6 +116,9 @@ export default class getFriend extends Vue {
     display: inline-block;
     margin: 10px;
     font-size: 30px;
+  }
+  .remarkFriend-beforefriendname-class {
+      font-size: 25px;
   }
 }
 </style>

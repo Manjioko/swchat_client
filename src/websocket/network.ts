@@ -61,6 +61,8 @@ function reconnect(socket: Socket, bus: Vue, str: string) {
                     clearInterval(time)
                     bus.$emit("websocketListener_reconnecting", 2)
                 }
+            } else {
+                clearInterval(time)
             }
         } catch {
             console.log("线路不可用...")

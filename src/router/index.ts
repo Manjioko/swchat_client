@@ -53,6 +53,15 @@ const routes: Array<RouteConfig> = [
       keepAlive: true,
     },
     component: () => import('../page/getFriend/getfriend.vue')
+  },
+  {
+    path: '/remarkfriend',
+    name: 'RemarkFriend',
+    meta: {
+      index: 5,
+      keepAlive: true,
+    },
+    component: () => import('../page/remark/remark.vue')
   }
 ]
 

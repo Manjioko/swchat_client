@@ -41,7 +41,8 @@ function handleBus(bus: Vue, socket: Socket) {
         // socket.emit("createPrivateChatRoom", roomidArr)
         // 序列化聊天记录
         for (const room of roomidArr) {
-            chatTmpData[room] = proxyArray(bus)
+            if (!chatTmpData[room])
+                chatTmpData[room] = proxyArray(bus)
         }
     })
 
@@ -66,7 +67,7 @@ function handleBus(bus: Vue, socket: Socket) {
 function handleSocket(socket: Socket, bus: Vue) {
 
     // 检查网络连接状况，负责websocket连接与断开工作
-    network(socket,bus)
+    network(socket, bus)
 
     // 正常情况下接收到的别人发送来的信息
     socket.on("privateChatWithOther", (chatBox: ChatBoxtype) => {
@@ -78,7 +79,7 @@ function handleSocket(socket: Socket, bus: Vue) {
     })
 
     // 重新连线后服务器会发送断线期间别人发送给你的信息
-    socket.on("testreconnect", (chatBox: ChatBoxtype,cb) => {
+    socket.on("testreconnect", (chatBox: ChatBoxtype, cb) => {
         // 将消息发送回 viewchat 组件
         bus.$emit("websocketListener_get_disconnect_chat_tmp_chatview", chatBox)
         // 缓存到聊天记录列表

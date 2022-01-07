@@ -41,7 +41,7 @@
         </div>
         <div
           class="sw-contactlist-remark-outlayout-class"
-          @click="remarkHandle(user.userid)"
+          @click="remarkHandle(user.userid,user.username)"
         >
           <div class="sw-contactlist-remark-text-class">备注</div>
         </div>
@@ -211,9 +211,16 @@ export default class Chat_content extends Vue {
     this.showDeleteMsg = "";
   }
 
-  private remarkHandle(clientid: string) {}
+  private remarkHandle(clientid: string,clientname: string) {
+    // 设置clientid
+    this.$store.setLocalClientid(clientid);
+    // 设置clientName
+    this.$store.setLocalClientname(clientname);
+    
+    this.$router.push('/remarkfriend');
+  }
 
-  beforeCreate() {
+  private postHanle() {
     this.$axios
       .post(this.$api.getMyfriendList, {
         userid: this.$store.getLocalUserid(),
@@ -239,7 +246,16 @@ export default class Chat_content extends Vue {
         console.log(error);
       });
   }
-  created() {}
+
+  created() {
+      this.postHanle()
+      this.$bus.$on("getfriend_refresh_page_contactslist", (addfriend: boolean) => {
+        if(addfriend) {
+          this.postHanle()
+        }
+      })
+  }
+  // created() {}
   beforeMount() {}
   mounted() {}
 }
