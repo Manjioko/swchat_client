@@ -55,6 +55,14 @@ export default class remarkFriend extends Vue {
         });
     }
 
+    beforeCreate() {
+      this.$bus.$on("contactslist_refresh_client_data_remark",(e:boolean) => {
+        if(e) {
+          this.friendName = this.$store.getLocalClientname()
+        }
+      })
+    }
+
 }
 </script>
 

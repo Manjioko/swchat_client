@@ -73,6 +73,7 @@ export default class Chat_content extends Vue {
   private moveWidth: number = 0;
 
   private divTarget: HTMLElement | null = null;
+  private tmpDivTarget: HTMLElement | null = null;
   private canRoute: boolean = true;
   private showDeleteMsg: string = "";
   private clientid: string = "";
@@ -95,6 +96,17 @@ export default class Chat_content extends Vue {
         this.divTarget.style.transitionDuration = "0.5s";
         this.divTarget.style.transitionTimingFunction = "ease";
         this.divTarget.style.left = "0px";
+      }
+    }
+
+    // 每次只能有一个单位能被左划
+    let tmpW: string = this.tmpDivTarget?.style.left ?? '0'
+    if (parseInt(tmpW) !== 0) {
+      this.canRoute = false;
+      if (this.tmpDivTarget?.style) {
+        this.tmpDivTarget.style.transitionDuration = "0.5s";
+        this.tmpDivTarget.style.transitionTimingFunction = "ease";
+        this.tmpDivTarget.style.left = "0px";
       }
     }
   }
@@ -147,9 +159,17 @@ export default class Chat_content extends Vue {
       }
     }
 
+
+
     // console.log("this.movewidth:" + this.moveWidth)
     // 导航到chatview
     let w: string = this.divTarget?.style.left ?? "0px";
+
+    // 缓存left不为零的元素
+    if(parseInt(w)) {
+      this.tmpDivTarget = this.divTarget
+    }
+
     if (this.canRoute) {
       this.gotoChatviewHandle(name, id);
       // this.handleGotoChatContent()
@@ -216,6 +236,8 @@ export default class Chat_content extends Vue {
     this.$store.setLocalClientid(clientid);
     // 设置clientName
     this.$store.setLocalClientname(clientname);
+
+    this.$bus.$emit("contactslist_refresh_client_data_remark",true)
     
     this.$router.push('/remarkfriend');
   }
