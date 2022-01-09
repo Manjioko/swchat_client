@@ -41,7 +41,7 @@
         </div>
         <div
           class="sw-contactlist-remark-outlayout-class"
-          @click="remarkHandle(user.userid,user.username)"
+          @click="remarkHandle(user.userid, user.username)"
         >
           <div class="sw-contactlist-remark-text-class">备注</div>
         </div>
@@ -89,7 +89,9 @@ export default class Chat_content extends Vue {
       this.divTarget = this.divTarget?.parentElement as HTMLElement;
     }
 
-    let w: string = this.divTarget?.style.left ?? "0";
+    let w: string = this.divTarget?.style.left
+      ? this.divTarget?.style.left
+      : "0";
     if (parseInt(w) !== 0) {
       this.canRoute = false;
       if (this.divTarget?.style) {
@@ -100,7 +102,9 @@ export default class Chat_content extends Vue {
     }
 
     // 每次只能有一个单位能被左划
-    let tmpW: string = this.tmpDivTarget?.style.left ?? '0'
+    let tmpW: string = this.tmpDivTarget?.style.left
+      ? this.tmpDivTarget?.style.left
+      : "0";
     if (parseInt(tmpW) !== 0) {
       this.canRoute = false;
       if (this.tmpDivTarget?.style) {
@@ -112,12 +116,17 @@ export default class Chat_content extends Vue {
   }
 
   private touchmoveHandle(event: TouchEvent) {
-    if (this.divTarget?.style.transition) this.divTarget.style.transition = "";
-    this.canRoute = false;
-    this.touchMoveX = event.touches[0].clientX;
-    this.moveWidth = this.touchStartX - this.touchMoveX;
-    // console.log(this.moveWidth)
 
+    // 如果存在transition，就清除它，主要是为了划动时不受动画的干扰
+    if (this.divTarget?.style.transition) this.divTarget.style.transition = "";
+    // 跳转开关关掉，主要是为了防止划动结束后不会触发跳转
+    this.canRoute = false;
+    // 计算划动时元素的坐标
+    this.touchMoveX = event.touches[0].clientX;
+    // 计算划动的距离
+    this.moveWidth = this.touchStartX - this.touchMoveX;
+
+    // 处理事件
     if (this.moveWidth > 0) {
       if (this.divTarget?.style) {
         let w: number = parseInt(
@@ -136,44 +145,37 @@ export default class Chat_content extends Vue {
 
   private touchendHandle(name: string, id: string) {
     // console.log(e)
+    // 松手时加入动画
     if (this.divTarget?.style) {
       let w: number = parseInt(this.divTarget.style.left);
       this.divTarget.style.transitionDuration = "0.2s";
       this.divTarget.style.transitionTimingFunction = "ease";
-      // console.log(w);
       // 分两种情况
       // 向左划
-      if (this.moveWidth > 0) {
+      if (this.moveWidth !== 0 && this.moveWidth > 0) {
         if (w < -10) {
           this.divTarget.style.left = "-120px";
         } else {
           this.divTarget.style.left = "0px";
         }
-      } else {
-        // 向右划
-        if (w > -50) {
-          this.divTarget.style.left = "0px";
-        } else {
-          this.divTarget.style.left = "-120px";
-        }
       }
     }
 
-
-
-    // console.log("this.movewidth:" + this.moveWidth)
     // 导航到chatview
-    let w: string = this.divTarget?.style.left ?? "0px";
+    let w: string = this.divTarget?.style.left
+      ? this.divTarget?.style.left
+      : "0px";
 
     // 缓存left不为零的元素
-    if(parseInt(w)) {
-      this.tmpDivTarget = this.divTarget
+    if (parseInt(w)) {
+      this.tmpDivTarget = this.divTarget;
     }
 
+    // 查看左划没有归位的情况，如果没有，就正常跳转
     if (this.canRoute) {
       this.gotoChatviewHandle(name, id);
-      // this.handleGotoChatContent()
     }
+    // 设置正常跳转开关
     this.canRoute = true;
   }
 
@@ -211,6 +213,7 @@ export default class Chat_content extends Vue {
   }
 
   private deleteYesHandle() {
+    // 确认删除好友时发送请求
     this.$axios
       .post(this.$api.removeFriend, {
         userid: this.$store.getLocalUserid(),
@@ -218,8 +221,9 @@ export default class Chat_content extends Vue {
       })
       .then((res: any) => {
         console.log(res);
-        if(res.data) {
-          this.userArr = this.userArr.filter(e => e.userid !== this.clientid)
+        if (res.data) {
+          // 刷新好友列表
+          this.userArr = this.userArr.filter((e) => e.userid !== this.clientid);
         }
       })
       .catch((err: any) => {
@@ -231,15 +235,16 @@ export default class Chat_content extends Vue {
     this.showDeleteMsg = "";
   }
 
-  private remarkHandle(clientid: string,clientname: string) {
+  private remarkHandle(clientid: string, clientname: string) {
     // 设置clientid
     this.$store.setLocalClientid(clientid);
     // 设置clientName
     this.$store.setLocalClientname(clientname);
 
-    this.$bus.$emit("contactslist_refresh_client_data_remark",true)
-    
-    this.$router.push('/remarkfriend');
+    // 更新 remark页面的clientname
+    this.$bus.$emit("contactslist_refresh_client_data_remark", true);
+
+    this.$router.push("/remarkfriend");
   }
 
   private postHanle() {
@@ -270,12 +275,15 @@ export default class Chat_content extends Vue {
   }
 
   created() {
-      this.postHanle()
-      this.$bus.$on("getfriend_refresh_page_contactslist", (addfriend: boolean) => {
-        if(addfriend) {
-          this.postHanle()
+    this.postHanle();
+    this.$bus.$on(
+      "getfriend_refresh_page_contactslist",
+      (addfriend: boolean) => {
+        if (addfriend) {
+          this.postHanle();
         }
-      })
+      }
+    );
   }
   // created() {}
   beforeMount() {}
