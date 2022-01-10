@@ -3,6 +3,7 @@ import { Socket } from 'socket.io-client'
 import Vue from "vue"
 import { ChatBoxtype } from 'vue/types/chatBoxType'
 import network from './network'
+import indexdb from './indexDBClass'
 
 const chatTmpData: any = {}
 
@@ -29,6 +30,7 @@ export default function websocketListener(vue: Vue, userid: string) {
     const bus: Vue = vue.$bus
     // websocket socket
     const socket: Socket = websocketconfig(vue.$api.rootUrl, userid)
+    let db = new indexdb()
     handleSocket(socket, bus)
     handleBus(bus, socket)
 }
@@ -78,6 +80,8 @@ function handleSocket(socket: Socket, bus: Vue) {
         bus.$emit("websocketListener_get_other_client_chat_chatview", chatBox)
     })
 
+    // 获取断线后的信息
+    socket.emit("getDisconnectChatMsg",true)
     // 重新连线后服务器会发送断线期间别人发送给你的信息
     socket.on("testreconnect", (chatBox: ChatBoxtype, cb) => {
         // 将消息发送回 viewchat 组件

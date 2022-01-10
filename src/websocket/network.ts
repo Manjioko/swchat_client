@@ -6,8 +6,10 @@ var time: any;
 function network(socket: Socket, bus: Vue) {
     if (navigator.onLine) {
         console.log("网络正常")
-        if (!socket.connected)
+        if (!socket.connected) {
+            console.log(socket.connected)
             reconnect(socket, bus, "1")
+        }
     } else {
         console.log("网络未连接")
     }
@@ -50,6 +52,7 @@ function reconnect(socket: Socket, bus: Vue, str: string) {
         console.log("The time is " + time)
         try {
             if (!socket.connected) {
+                console.log("socket.connected "+socket.connected)
                 if(maxreconnectTry) {
                     socket.connect()
                     console.log(`reconnecting ${str} ...`)
