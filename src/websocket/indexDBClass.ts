@@ -77,7 +77,7 @@ export default class indexDB {
                 let result = e.target.result;
                 if (result) {
                     console.log("getRoomMSG 已存在值")
-                    console.log(result)
+                    // console.log(result)
                     // result.update(result.chatBox = {username:"test"})
                 } else {
                     console.log("getRoomMSG 不存在值, 即将写入数据")
@@ -92,6 +92,13 @@ export default class indexDB {
 
                 }
             }
+
+            getRoomMSG.onerror = (err:any) => {
+                console.log(err)
+            }
+
+        }).catch(err => {
+            console.log(err)
         })
     }
 
@@ -113,7 +120,41 @@ export default class indexDB {
                     console.log("updateDataToDB getRoomMSG 不存在值")
                 }
             }
-            // getRoomMSG.open
+
+            getRoomMSG.onerror = (err:any) => {
+                console.log(err)
+            }
+
+        }).catch(err => {
+            console.log(err)
+        })
+    }
+
+    private getDataFromDB(roomid: string): Promise<any> {
+        return new Promise((resolve,reject) => {
+            this.dbPromise.then(db => {
+                let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
+                let store = tr.objectStore('swchat_msg_test001')
+                let index = store.index("roomid")
+                let getRoomMSG = index.get(roomid)
+                getRoomMSG.onsuccess = (e: any) => {
+                    console.log(e)
+                    let result = e.target.result;
+                    if (result) {
+                        console.log("读取数据库...")
+                        resolve(result.chatBox)
+                    } else {
+                        resolve(false)
+                    }
+                }
+
+                getRoomMSG.onerror = (err:any) => {
+                    reject(err)
+                }
+
+            }).catch(err => {
+                console.log(err)
+            })
         })
     }
 }

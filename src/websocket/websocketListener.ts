@@ -61,8 +61,17 @@ function handleBus(vue: Vue, socket: Socket) {
     })
 
     // chatview 组件更新聊天记录
-    vue.$bus.$on("chatview_get_chat_tmp_websocketListener", (data: string) => {
-        vue.$bus.$emit("websocketListener_send_updated_chat_tmp_chatview", chatTmpData[data])
+    vue.$bus.$on("chatview_get_chat_tmp_websocketListener", async (roomid: string) => {
+        let chatBoxArr = chatTmpData[roomid] as Array<ChatBoxtype>
+        if(chatBoxArr.length) {
+            vue.$bus.$emit("websocketListener_send_updated_chat_tmp_chatview", chatBoxArr)
+        } else {
+            // 从数据库读取聊天信息
+            let chatBoxArr = await vue.$db.getDataFromDB(roomid)
+            if(chatBoxArr) {
+                vue.$bus.$emit("websocketListener_send_updated_chat_tmp_chatview", chatBoxArr)
+            }
+        }
     })
 
 }
