@@ -43,11 +43,8 @@ export default class indexDB {
                         autoIncrement: true
                     })
 
-                    store.createIndex('myid', 'myid', { unique: false })
-                    store.createIndex('time', 'time', { unique: false })
-                    store.createIndex('clientid', 'clientid', { unique: false })
-                    store.createIndex('roomid', 'roomid', { unique: false })
-                    store.createIndex('content', 'content', { unique: false })
+                    store.createIndex('roomid', 'roomid', { unique: true })
+                    console.log("swchat_msg_test001 创建成功")
                 }
             }
 
@@ -55,30 +52,7 @@ export default class indexDB {
                 console.log("数据库打开成功...");
                 let db = e?.target?.result;
 
-                let storeNames = db.objectStoreNames;
-
-                //创建数据库的表格（或者叫数据库仓库）
-                if (!storeNames.contains('swchat_msg_test001')) {
-                    let store: any = db.createObjectStore('swchat_msg_test001', {
-                        keyPath: "indexDBId",
-                        autoIncrement: true
-                    })
-                    store.createIndex('myid', 'myid', { unique: false })
-                    store.createIndex('time', 'time', { unique: false })
-                    store.createIndex('clientid', 'clientid', { unique: false })
-                    store.createIndex('roomid', 'roomid', { unique: false })
-                    store.createIndex('content', 'content', { unique: false })
-                }
-
                 resolve(db)
-
-                //4-这里面我要写很多要调用的函数了，比如，下面.....wu la wu la.....
-
-                // add_data(db, chatbox);  //数据库中添加数据
-                // del_data(db);  //数据库中删除数据
-                // deal_data(db); //读取数据
-                // update_data(db);//更新数据（类似于Add方法）
-                // traverse_data(db); //遍历数据
             }
 
             openRequest.onerror = function (e) {              //error：打开失败*-*
@@ -90,5 +64,55 @@ export default class indexDB {
         })
 
         return db
+    }
+
+    private addDataToDB(roomid: string) {
+        this.dbPromise.then(db => {
+            let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
+            let store = tr.objectStore('swchat_msg_test001')
+
+            let index = store.index("roomid")
+            let getRoomMSG = index.get(roomid)
+            getRoomMSG.onsuccess = function (e: any) {
+                let result = e.target.result;
+                if (result) {
+                    console.log("getRoomMSG 已存在值")
+                    // result.update(result.chatBox = {username:"test"})
+                } else {
+                    console.log("getRoomMSG 不存在值, 即将写入数据")
+                    let request = store.add({ roomid: roomid, chatBox: [] })
+                    request.onsuccess = function (event) {
+                        console.log(`${roomid} 数据写入成功`);
+                    };
+
+                    request.onerror = function (event) {
+                        console.log(`${roomid} 数据写入失败`);
+                    }
+
+                }
+            }
+        })
+    }
+
+    private updateDataToDB(roomid: string, chatBox:ChatBoxtype) {
+        this.dbPromise.then(db => {
+            let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
+            let store = tr.objectStore('swchat_msg_test001')
+
+            let index = store.index("roomid")
+            let getRoomMSG = index.get(roomid)
+            getRoomMSG.onsuccess = function (e: any) {
+                let result = e.target.result;
+                if (result) {
+                    console.log("getRoomMSG 已存在值")
+                    result.chatBox.push(chatBox)
+                    store.put(result)
+                    // result.update(result.chatBox = {username:"test"})
+                } else {
+                    console.log("getRoomMSG 不存在值, 即将写入数据")
+                }
+            }
+            // getRoomMSG.open
+        })
     }
 }

@@ -5,6 +5,7 @@ import router from './router'
 import swallowUI from 'swallow-ui'
 import ApiUrl from './utils/apiUrl'
 import storageData from './utils/storageData'
+import indexDB from './websocket/indexDBClass'
 // import websocket from './websocket/websocketConfig'
 // import websocketListener from './websocket/websocketListener'
 const axios = require('axios').default
@@ -14,7 +15,7 @@ Vue.config.productionTip = false
 Vue.use(swallowUI)
 // Vue.use(websocket(new ApiUrl().rootUrl))
 
-
+Vue.prototype.$db = new indexDB()
 Vue.prototype.$bus = new Vue()
 Vue.prototype.$api = new ApiUrl()
 Vue.prototype.$axios = axios

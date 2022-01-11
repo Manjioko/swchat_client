@@ -6,5 +6,6 @@ declare module 'vue/types/vue' {
       readonly $axios: any,
       readonly $api: any,
       readonly $store: any,
+      readonly $db: any,
     }
   }

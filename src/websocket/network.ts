@@ -28,7 +28,6 @@ function network(socket: Socket, bus: Vue) {
 
     // websocket 连接 server
     socket.on("connect", () => {
-        // console.log()
         if (time) {
             clearInterval(time)
         }
@@ -47,7 +46,7 @@ function network(socket: Socket, bus: Vue) {
 
 
 function reconnect(socket: Socket, bus: Vue, str: string) {
-    let maxreconnectTry = 50;
+    let maxreconnectTry = 5;
     time = setInterval(() => {
         console.log("The time is " + time)
         try {
@@ -69,6 +68,7 @@ function reconnect(socket: Socket, bus: Vue, str: string) {
             }
         } catch {
             console.log("线路不可用...")
+            clearInterval(time)
         }
     }, 4000)
 }

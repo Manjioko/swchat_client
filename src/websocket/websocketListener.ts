@@ -3,7 +3,6 @@ import { Socket } from 'socket.io-client'
 import Vue from "vue"
 import { ChatBoxtype } from 'vue/types/chatBoxType'
 import network from './network'
-import indexdb from './indexDBClass'
 
 const chatTmpData: any = {}
 
@@ -30,26 +29,27 @@ export default function websocketListener(vue: Vue, userid: string) {
     const bus: Vue = vue.$bus
     // websocket socket
     const socket: Socket = websocketconfig(vue.$api.rootUrl, userid)
-    let db = new indexdb()
     handleSocket(socket, bus)
-    handleBus(bus, socket)
+    handleBus(vue, socket)
 }
 
-function handleBus(bus: Vue, socket: Socket) {
+function handleBus(vue: Vue, socket: Socket) {
 
     //将全部好友加入私聊房间
-    bus.$on("contantslist_join_all_friends_to_private_room_websocketListener", (roomidArr: Array<string>) => {
+    vue.$bus.$on("contantslist_join_all_friends_to_private_room_websocketListener", (roomidArr: Array<string>) => {
         // 服务器创建私聊关键字是 createPrivateChatRoom
         // socket.emit("createPrivateChatRoom", roomidArr)
         // 序列化聊天记录
         for (const room of roomidArr) {
-            if (!chatTmpData[room])
-                chatTmpData[room] = proxyArray(bus)
+            if (!chatTmpData[room]) {
+                chatTmpData[room] = proxyArray(vue.$bus)
+                vue.$db.addDataToDB(room)
+            }
         }
     })
 
     // chatview 组件发送信息
-    bus.$on("chatview_send_chat_data_to_websocketListener", (chatBox: ChatBoxtype) => {
+    vue.$bus.$on("chatview_send_chat_data_to_websocketListener", (chatBox: ChatBoxtype) => {
         // 保存到聊天记录中
         chatTmpData[chatBox.roomid as string].push(chatBox)
         // 发往websocket server
@@ -60,8 +60,8 @@ function handleBus(bus: Vue, socket: Socket) {
     })
 
     // chatview 组件更新聊天记录
-    bus.$on("chatview_get_chat_tmp_websocketListener", (data: string) => {
-        bus.$emit("websocketListener_send_updated_chat_tmp_chatview", chatTmpData[data])
+    vue.$bus.$on("chatview_get_chat_tmp_websocketListener", (data: string) => {
+        vue.$bus.$emit("websocketListener_send_updated_chat_tmp_chatview", chatTmpData[data])
     })
 
 }
