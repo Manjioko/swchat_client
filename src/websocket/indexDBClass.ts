@@ -77,6 +77,7 @@ export default class indexDB {
                 let result = e.target.result;
                 if (result) {
                     console.log("getRoomMSG 已存在值")
+                    console.log(result)
                     // result.update(result.chatBox = {username:"test"})
                 } else {
                     console.log("getRoomMSG 不存在值, 即将写入数据")
@@ -104,12 +105,12 @@ export default class indexDB {
             getRoomMSG.onsuccess = function (e: any) {
                 let result = e.target.result;
                 if (result) {
-                    console.log("getRoomMSG 已存在值")
+                    console.log("updateDataToDB getRoomMSG 已存在值,即将更新chatBox")
                     result.chatBox.push(chatBox)
                     store.put(result)
                     // result.update(result.chatBox = {username:"test"})
                 } else {
-                    console.log("getRoomMSG 不存在值, 即将写入数据")
+                    console.log("updateDataToDB getRoomMSG 不存在值")
                 }
             }
             // getRoomMSG.open

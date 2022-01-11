@@ -8,14 +8,15 @@ const chatTmpData: any = {}
 
 // 给数组挂上代理,监听数组变化
 // 数组变化则需要通知userlist组件作出改变
-function proxyArray(bus: Vue): Array<ChatBoxtype> {
+function proxyArray(vue: Vue): Array<ChatBoxtype> {
     return new Proxy([], {
         get: function (target, key) {
             return Reflect.get(target, key);
         },
         set: function (target, key, value) {
             if (value?.roomid) {
-                bus.$emit("websocketListener_send_chatbox_to_userlist", value)
+                vue.$bus.$emit("websocketListener_send_chatbox_to_userlist", value)
+                vue.$db.updateDataToDB(value.roomid,value)
             }
             return Reflect.set(target, key, value);
         }
@@ -42,7 +43,7 @@ function handleBus(vue: Vue, socket: Socket) {
         // 序列化聊天记录
         for (const room of roomidArr) {
             if (!chatTmpData[room]) {
-                chatTmpData[room] = proxyArray(vue.$bus)
+                chatTmpData[room] = proxyArray(vue)
                 vue.$db.addDataToDB(room)
             }
         }
