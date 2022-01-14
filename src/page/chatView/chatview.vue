@@ -1,5 +1,5 @@
 <template>
-  <div class="sw-chatview">
+  <div class="sw-chatview" id="sw_chatview">
     <topbar :showBack="true" :showMore="true" :username="clientname" />
     <chatcontent />
     <inputcontent />
@@ -48,7 +48,7 @@ export default class Chat_view extends Vue {
   @Watch("roomid")
   updateTheChatlist(newvalue: string, oldvalue: string) {
     if (newvalue !== oldvalue) {
-      // roomid更换时更新聊天记录
+      // roomid更换时更新聊天记录 0
       this.$bus.$emit("chatview_get_chat_tmp_websocketListener", this.roomid);
     }
   }
@@ -70,7 +70,7 @@ export default class Chat_view extends Vue {
       this.clientid = idObj.clientid;
       this.clientname = idObj.clientname;
     });
-    // 监听聊天记录更新
+    // 监听聊天记录更新 1
     this.$bus.$on(
       "websocketListener_send_updated_chat_tmp_chatview",
       (data: Array<string>) => {

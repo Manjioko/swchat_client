@@ -125,7 +125,7 @@ export default class indexDB {
         })
     }
 
-    private getDataFromDB(roomid: string): Promise<any> {
+    private getDataFromDB(roomid: string,chatLen?:number): Promise<any> {
         return new Promise((resolve, reject) => {
             this.dbPromise.then(db => {
                 let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
@@ -135,7 +135,25 @@ export default class indexDB {
                 getRoomMSG.onsuccess = (e: any) => {
                     let result = e.target.result;
                     if (result) {
-                        resolve(result.chatBox)
+                        // 返回聊天消息的数组
+                        let someChat = []
+                        // 每次返回20条消息
+                        let len = 20
+                        // 聊天消息的总长度
+                        let chatboxLen = chatLen ? result.chatBox.length - chatLen - 1 : result.chatBox.length - 1
+                        console.log("cahtboxlen is: " + chatboxLen)
+
+                        // 获取20条消息放入somechat中
+                        while(len > 0 && chatboxLen >= 0) {
+                            let data = result.chatBox[chatboxLen]
+                            if(data) {
+                                someChat.unshift(data)
+                            }
+                            len --
+                            chatboxLen --
+                        }
+                        // 返回someChat
+                        resolve(someChat)
                     } else {
                         resolve(false)
                     }

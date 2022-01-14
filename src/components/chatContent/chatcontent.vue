@@ -1,5 +1,9 @@
 <template>
-  <div class="sw-chatcontent" id="sw_chat_content">
+  <div
+    class="sw-chatcontent"
+    id="sw_chat_content"
+    @scroll="throttle($event, chatcontentScrollHandle, 1000)()"
+  >
     <div
       v-for="(item, index) in chatArr"
       :key="index + 'chartbox'"
@@ -22,6 +26,7 @@
         <s-avatar :sSrc="item.avatar" />
       </div>
     </div>
+    <!-- <p id="">hello workd</p> -->
   </div>
 </template>
 
@@ -33,16 +38,50 @@ import { ChatBoxtype } from "vue/types/chatBoxType";
 @Component({})
 export default class Chat_content extends Vue {
   private chatArr: Array<ChatBoxtype> = [];
+  private chatcontentEle: HTMLElement | null = null;
+  private timer: any = null;
+
+  // 赖加载
+  private async chatcontentScrollHandle(e: any) {
+    // console.log(e);
+    let data = await this.$db.getDataFromDB(this.$store.getLocalRoomid(),this.chatArr.length)
+    // for (const key of data) {
+    //   this.chatArr.unshift(key)
+    // }
+    this.chatArr = [...data,...this.chatArr]
+    // e.target.offsetTop = 400
+    // this.$nextTick(() => {
+    //   e.target.scrollTop = 929
+    // })
+    // console.log(data)
+  }
+
+  private throttle(event: any, method: Function, delay: number) {
+    return () => {
+      console.log(event.target.scrollTop)
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        if (event.target.scrollTop === 0) {
+          method(event);
+        }
+      }, delay);
+    };
+  }
 
   mounted() {
-    this.$bus.$on("chatview_update_chatArr_to_chatcontent",(newChatArr:Array<ChatBoxtype>) => {
-      // console.log("chatcontent update the chatArr...")
-      if(newChatArr)
-        this.chatArr = [...newChatArr]
-    })
-    this.$bus.$on("chatview_send_chat_data_to_chatcontent",(data:ChatBoxtype) => {
-      this.chatArr.push(data)
-    })
+    this.$bus.$on(
+      "chatview_update_chatArr_to_chatcontent",
+      (newChatArr: Array<ChatBoxtype>) => {
+        if (newChatArr) this.chatArr = [...newChatArr];
+      }
+    );
+    this.$bus.$on(
+      "chatview_send_chat_data_to_chatcontent",
+      (data: ChatBoxtype) => {
+        this.chatArr.push(data);
+      }
+    );
+    // this.chatcontentEle = document.getElementById("sw_chat_content")
   }
 
   updated() {
@@ -55,11 +94,14 @@ export default class Chat_content extends Vue {
   @Watch("$route")
   routerhandle(e: Route) {
     // 解决 IOS 滚动僵住的问题
-    if(e.name == "ChatView") {
-      let ele: HTMLElement | null = document.getElementById("sw_chat_content")
-      if(ele)
-        ele.scrollTop = 1
+    if (e.name == "ChatView") {
+      let ele: HTMLElement | null = document.getElementById("sw_chat_content");
+      if (ele) ele.scrollTop = 1;
     }
+  }
+
+  beforeDestroy() {
+    clearTimeout(this.timer)
   }
 }
 </script>
