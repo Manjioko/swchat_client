@@ -64,24 +64,36 @@ interface userArrStruct {
   components: {},
 })
 export default class Chat_content extends Vue {
-  // @Prop(Array) private toggle!:Array<boolean>
+
+  // 渲染list的数据
   private userArr: Array<userArrStruct> = [];
   private clientName: string = "";
 
+  // 触碰时的X轴坐标
   private touchStartX: number = 0;
+  // 手指移动时X轴坐标
   private touchMoveX: number = 0;
+  // 手指移动距touchStartX 的距离
   private moveWidth: number = 0;
 
+  // 需要移动的元素
   private divTarget: HTMLElement | null = null;
+  // 上一个移动过的元素,主要用于锁定判断是否只有一个正在移动的元素
+  // 如果存在多个,就先还原之前移动的元素
   private tmpDivTarget: HTMLElement | null = null;
+  // 路由锁
   private canRoute: boolean = true;
+  //提示用户删除操作
   private showDeleteMsg: string = "";
+  // 用于从userObject删除client数据的缓存clientid
   private clientid: string = "";
 
+  // 手指触碰到list时触发这个函数
   private touchstartHandle(event: TouchEvent) {
     this.touchStartX = event.touches[0].clientX;
     this.divTarget = event.target as HTMLElement;
 
+    // 定位元素到 sw-contactslist-outLevel-class 
     while (
       this.divTarget &&
       ![...this.divTarget.classList].includes("sw-contactslist-outLevel-class")
@@ -89,11 +101,13 @@ export default class Chat_content extends Vue {
       this.divTarget = this.divTarget?.parentElement as HTMLElement;
     }
 
+    // 获取this.divTarget.style.left 值
     let w: string = this.divTarget?.style.left
       ? this.divTarget?.style.left
       : "0";
     if (parseInt(w) !== 0) {
       this.canRoute = false;
+      // 设置过渡效果
       if (this.divTarget?.style) {
         this.divTarget.style.transitionDuration = "0.5s";
         this.divTarget.style.transitionTimingFunction = "ease";
@@ -106,7 +120,9 @@ export default class Chat_content extends Vue {
       ? this.tmpDivTarget?.style.left
       : "0";
     if (parseInt(tmpW) !== 0) {
+      // 锁死路由
       this.canRoute = false;
+      // 设置过渡效果
       if (this.tmpDivTarget?.style) {
         this.tmpDivTarget.style.transitionDuration = "0.5s";
         this.tmpDivTarget.style.transitionTimingFunction = "ease";
@@ -115,6 +131,7 @@ export default class Chat_content extends Vue {
     }
   }
 
+  // 手指移动
   private touchmoveHandle(event: TouchEvent) {
 
     // 如果存在transition，就清除它，主要是为了划动时不受动画的干扰
@@ -126,7 +143,7 @@ export default class Chat_content extends Vue {
     // 计算划动的距离
     this.moveWidth = this.touchStartX - this.touchMoveX;
 
-    // 处理事件
+    // 处理事件 移动元素
     if (this.moveWidth > 0) {
       if (this.divTarget?.style) {
         let w: number = parseInt(
@@ -135,6 +152,7 @@ export default class Chat_content extends Vue {
         if (w > -120 && w !== -120) this.divTarget.style.left = w - 3 + "px";
       }
     }
+    // 处理事件 移动元素
     if (this.moveWidth < 0) {
       if (this.divTarget?.style) {
         let w: number = parseInt(this.divTarget.style.left);
@@ -143,14 +161,13 @@ export default class Chat_content extends Vue {
     }
   }
 
+  // 手指松开
   private touchendHandle(name: string, id: string) {
-    // console.log(e)
     // 松手时加入动画
     if (this.divTarget?.style) {
       let w: number = parseInt(this.divTarget.style.left);
       this.divTarget.style.transitionDuration = "0.2s";
       this.divTarget.style.transitionTimingFunction = "ease";
-      // 分两种情况
       // 向左划
       if (this.moveWidth !== 0 && this.moveWidth > 0) {
         if (w < -10) {
@@ -161,7 +178,6 @@ export default class Chat_content extends Vue {
       }
     }
 
-    // 导航到chatview
     let w: string = this.divTarget?.style.left
       ? this.divTarget?.style.left
       : "0px";
