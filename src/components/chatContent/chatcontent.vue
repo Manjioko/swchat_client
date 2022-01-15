@@ -4,6 +4,9 @@
     id="sw_chat_content"
     @scroll="throttle($event, chatcontentScrollHandle, 1000)()"
   >
+    <div class="sw-chatcontent-loading-div-class" v-show="isLoadingShow">
+      <img :src="require('../../assets/loading.png')" alt="loading..." />
+    </div>
     <div
       v-for="(item, index) in chatArr"
       :key="index + 'chartbox'"
@@ -40,31 +43,40 @@ export default class Chat_content extends Vue {
   private chatArr: Array<ChatBoxtype> = [];
   private chatcontentEle: HTMLElement | null = null;
   private timer: any = null;
+  private scrollTop: number = 0;
+  private isLoadingShow: boolean = false;
 
   // 赖加载
   private async chatcontentScrollHandle(e: any) {
-    // console.log(e);
-    let data = await this.$db.getDataFromDB(this.$store.getLocalRoomid(),this.chatArr.length)
-    // for (const key of data) {
-    //   this.chatArr.unshift(key)
-    // }
-    this.chatArr = [...data,...this.chatArr]
-    // e.target.offsetTop = 400
-    // this.$nextTick(() => {
-    //   e.target.scrollTop = 929
-    // })
-    // console.log(data)
+    let data = await this.$db.getDataFromDB(
+      this.$store.getLocalRoomid(),
+      this.chatArr.length
+    );
+    if (data.length) {
+      this.chatArr = [...data, ...this.chatArr];
+      this.$nextTick(() => {
+        e.target.scrollTop = e.target.scrollHeight - this.scrollTop
+        this.isLoadingShow = false
+      });
+      // console.log(e.target.scrollHeight)
+
+    } else {
+      this.isLoadingShow = false
+    }
+    // this.isLoadingShow = false
+    // console.log(e.target.scrollTop)
   }
 
   private throttle(event: any, method: Function, delay: number) {
     return () => {
-      console.log(event.target.scrollTop)
       clearTimeout(this.timer);
-      this.timer = setTimeout(() => {
-        if (event.target.scrollTop === 0) {
+      if (event.target.scrollTop === 0) {
+        this.isLoadingShow = true
+        this.scrollTop = event.target.scrollHeight
+        this.timer = setTimeout(() => {
           method(event);
-        }
-      }, delay);
+        }, delay);
+      }
     };
   }
 
@@ -85,10 +97,10 @@ export default class Chat_content extends Vue {
   }
 
   updated() {
-    let ele = document.getElementById("sw_chat_content");
-    if (ele) {
-      ele.scrollTop = ele?.scrollHeight;
-    }
+    // let ele = document.getElementById("sw_chat_content");
+    // if (ele) {
+    //   ele.scrollTop = ele?.scrollHeight;
+    // }
   }
   // 监听路由变化
   @Watch("$route")
@@ -101,7 +113,7 @@ export default class Chat_content extends Vue {
   }
 
   beforeDestroy() {
-    clearTimeout(this.timer)
+    clearTimeout(this.timer);
   }
 }
 </script>
@@ -153,6 +165,34 @@ export default class Chat_content extends Vue {
     user-select: none;
     image {
       -webkit-user-drag: none;
+    }
+  }
+  .sw-chatcontent-loading-div-class {
+    width: 20px;
+    height: 20px;
+    position: fixed;
+    margin: 0 auto;
+    top: 7vh;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    img {
+      width: 20px;
+      height: 20px;
+    }
+    animation-name: loading;
+    animation-duration: 0.3s;
+    animation-iteration-count: infinite;
+  }
+  @keyframes loading {
+    from {
+      transform: rotate(60deg);
+    }
+    50% {
+      transform: rotate(120deg);
+    }
+    to {
+      transform: rotate(180deg);
     }
   }
 }
