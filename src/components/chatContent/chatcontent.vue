@@ -45,6 +45,7 @@ export default class Chat_content extends Vue {
   private timer: any = null;
   private scrollTop: number = 0;
   private isLoadingShow: boolean = false;
+  private orginWindowHeight: number = 0;
 
   // 赖加载
   private async chatcontentScrollHandle(e: any) {
@@ -55,36 +56,45 @@ export default class Chat_content extends Vue {
     if (data.length) {
       this.chatArr = [...data, ...this.chatArr];
       this.$nextTick(() => {
-        e.target.scrollTop = e.target.scrollHeight - this.scrollTop
-        this.isLoadingShow = false
+        e.target.scrollTop = e.target.scrollHeight - this.scrollTop;
+        this.isLoadingShow = false;
       });
-      // console.log(e.target.scrollHeight)
-
     } else {
-      this.isLoadingShow = false
+      this.isLoadingShow = false;
     }
-    // this.isLoadingShow = false
-    // console.log(e.target.scrollTop)
   }
 
   private throttle(event: any, method: Function, delay: number) {
     return () => {
       clearTimeout(this.timer);
       if (event.target.scrollTop === 0) {
-        this.isLoadingShow = true
-        this.scrollTop = event.target.scrollHeight
-        this.timer = setTimeout(() => {
-          method(event);
-        }, delay);
+        this.scrollTop = event.target.scrollHeight;
+        // 首次进入聊天窗口时不需要显示loading
+        if (this.scrollTop !== this.orginWindowHeight) {
+          this.isLoadingShow = true;
+          this.timer = setTimeout(() => {
+            method(event);
+          }, delay);
+        }
       }
     };
   }
 
   mounted() {
+    let ele = document.getElementById("sw_chat_content");
+    this.orginWindowHeight = ele ? ele.scrollHeight : 0;
+
     this.$bus.$on(
       "chatview_update_chatArr_to_chatcontent",
       (newChatArr: Array<ChatBoxtype>) => {
         if (newChatArr) this.chatArr = [...newChatArr];
+        // 第一次进入页面时滚动到页面底部
+        this.$nextTick(() => {
+          if (ele) {
+            console.log(ele.scrollHeight);
+            ele.scrollTop = ele.scrollHeight;
+          }
+        });
       }
     );
     this.$bus.$on(
@@ -93,7 +103,6 @@ export default class Chat_content extends Vue {
         this.chatArr.push(data);
       }
     );
-    // this.chatcontentEle = document.getElementById("sw_chat_content")
   }
 
   updated() {
@@ -105,10 +114,16 @@ export default class Chat_content extends Vue {
   // 监听路由变化
   @Watch("$route")
   routerhandle(e: Route) {
+    let ele: HTMLElement | null = document.getElementById("sw_chat_content");
     // 解决 IOS 滚动僵住的问题
     if (e.name == "ChatView") {
-      let ele: HTMLElement | null = document.getElementById("sw_chat_content");
+      
       if (ele) ele.scrollTop = 1;
+
+      // 清理 this.chatArr
+      // this.chatArr = []
+    } {
+      ele? ele.scrollTop = ele.scrollHeight : ''
     }
   }
 
