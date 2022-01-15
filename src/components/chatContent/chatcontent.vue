@@ -119,7 +119,6 @@ export default class Chat_content extends Vue {
     if (e.name == "ChatView") {
       
       if (ele) ele.scrollTop = 1;
-
       // 清理 this.chatArr
       // this.chatArr = []
     } {
