@@ -22,7 +22,6 @@
           class="sw-contactslist-outLevel-class"
           @touchend="touchendHandle(user.username, user.userid)"
         >
-          <div class="sw-contactslist-left-content">
             <div class="sw-contactslist-avatar-class">
               <s-avatar :sSrc="user.avatar" draggable="false" />
             </div>
@@ -31,7 +30,8 @@
               <div>{{ user.username }}</div>
             </div>
           </div>
-        </div>
+
+
         <!-- delete div -->
         <div
           class="sw-contactlist-delete-outlayout-class"
@@ -45,6 +45,9 @@
         >
           <div class="sw-contactlist-remark-text-class">备注</div>
         </div>
+          <!-- remark end -->
+        </div>
+        <!-- deleted end -->
       </div>
     </div>
   </div>
@@ -64,7 +67,6 @@ interface userArrStruct {
   components: {},
 })
 export default class Chat_content extends Vue {
-
   // 渲染list的数据
   private userArr: Array<userArrStruct> = [];
   private clientName: string = "";
@@ -93,7 +95,7 @@ export default class Chat_content extends Vue {
     this.touchStartX = event.touches[0].clientX;
     this.divTarget = event.target as HTMLElement;
 
-    // 定位元素到 sw-contactslist-outLevel-class 
+    // 定位元素到 sw-contactslist-outLevel-class
     while (
       this.divTarget &&
       ![...this.divTarget.classList].includes("sw-contactslist-outLevel-class")
@@ -122,8 +124,18 @@ export default class Chat_content extends Vue {
     if (parseInt(tmpW) !== 0) {
       // 锁死路由
       this.canRoute = false;
+      // 解决点击删除备注时页面出现向右划动现象
+      let eleClassList = [...(event.target as HTMLElement).classList];
+      let isRightRemarkEle =
+        eleClassList.includes("sw-contactlist-remark-outlayout-class") ||
+        eleClassList.includes("sw-contactlist-remark-text-class");
+      let isRightDeleteEle =
+        eleClassList.includes("sw-contactlist-delete-outlayout-class") ||
+        eleClassList.includes("sw-contactlist-delete-text-class");
+      let isright = isRightRemarkEle || isRightDeleteEle;
+      
       // 设置过渡效果
-      if (this.tmpDivTarget?.style) {
+      if (this.tmpDivTarget?.style && !isright) {
         this.tmpDivTarget.style.transitionDuration = "0.5s";
         this.tmpDivTarget.style.transitionTimingFunction = "ease";
         this.tmpDivTarget.style.left = "0px";
@@ -133,7 +145,6 @@ export default class Chat_content extends Vue {
 
   // 手指移动
   private touchmoveHandle(event: TouchEvent) {
-
     // 如果存在transition，就清除它，主要是为了划动时不受动画的干扰
     if (this.divTarget?.style.transition) this.divTarget.style.transition = "";
     // 跳转开关关掉，主要是为了防止划动结束后不会触发跳转
@@ -224,6 +235,7 @@ export default class Chat_content extends Vue {
   }
 
   private deleteHandle(clientid: string, clientname: string) {
+    console.log(clientid);
     this.showDeleteMsg = `确定要删除 ${clientname} 吗?`;
     this.clientid = clientid;
   }
@@ -252,6 +264,7 @@ export default class Chat_content extends Vue {
   }
 
   private remarkHandle(clientid: string, clientname: string) {
+    console.log("hello");
     // 设置clientid
     this.$store.setLocalClientid(clientid);
     // 设置clientName
@@ -270,6 +283,7 @@ export default class Chat_content extends Vue {
       })
       .then((response: any) => {
         this.userArr = response.data;
+        console.log(this.userArr);
         // 建立好友房连接
         let createRoomidArr = [];
         for (const fr of response.data) {

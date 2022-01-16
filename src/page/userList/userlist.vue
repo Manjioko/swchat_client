@@ -147,8 +147,15 @@ export default class Chat_content extends Vue {
     if (parseInt(tmpW) !== 0) {
       // 锁死路由
       this.canRoute = false;
+
+      // 解决点击删除备注时页面出现向右划动现象
+      let eleClassList = [...(event.target as HTMLElement).classList];
+      let isRightDeleteEle =
+        eleClassList.includes("sw-userlist-delete-outlayout-class") ||
+        eleClassList.includes("sw-userlist-delete-text-class");
+
       // 设置过渡效果
-      if (this.tmpDivTarget?.style) {
+      if (this.tmpDivTarget?.style && !isRightDeleteEle) {
         this.tmpDivTarget.style.transitionDuration = "0.5s";
         this.tmpDivTarget.style.transitionTimingFunction = "ease";
         this.tmpDivTarget.style.left = "0px";

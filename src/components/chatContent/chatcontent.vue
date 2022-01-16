@@ -40,11 +40,15 @@ import { ChatBoxtype } from "vue/types/chatBoxType";
 
 @Component({})
 export default class Chat_content extends Vue {
+  // 信息容器
   private chatArr: Array<ChatBoxtype> = [];
-  private chatcontentEle: HTMLElement | null = null;
+  // 计时器
   private timer: any = null;
+  // 页面滚动高度
   private scrollTop: number = 0;
+  // loding图标开关
   private isLoadingShow: boolean = false;
+  // 初始聊天窗口高度
   private orginWindowHeight: number = 0;
 
   // 赖加载
@@ -56,7 +60,10 @@ export default class Chat_content extends Vue {
     if (data.length) {
       this.chatArr = [...data, ...this.chatArr];
       this.$nextTick(() => {
+        // chatArr 改变，意味聊天窗口变长，这里对应要将scrollTop定位到chatArr上次的长度上
+        // 才自然不影响视觉，直观看到聊天内容变长
         e.target.scrollTop = e.target.scrollHeight - this.scrollTop;
+        // 关闭loading图标
         this.isLoadingShow = false;
       });
     } else {
@@ -64,45 +71,57 @@ export default class Chat_content extends Vue {
     }
   }
 
+  // 节流器
   private throttle(event: any, method: Function, delay: number) {
     return () => {
       clearTimeout(this.timer);
       if (event.target.scrollTop === 0) {
+        // 将元素的滚动高度赋予scrollTop
         this.scrollTop = event.target.scrollHeight;
         // 首次进入聊天窗口时不需要显示loading
         if (this.scrollTop !== this.orginWindowHeight) {
+          // 打开loading图标
           this.isLoadingShow = true;
           this.timer = setTimeout(() => {
+            // 执行赖加载函数
             method(event);
           }, delay);
         }
+      } else {
+        // 滚动时及时处理isLoadingShow,解决向下滚动也会出现loading图标的现象
+        this.isLoadingShow ? this.isLoadingShow = false : ''
       }
     };
   }
 
   mounted() {
     let ele = document.getElementById("sw_chat_content");
+    // 获取聊天窗口高度
     this.orginWindowHeight = ele ? ele.scrollHeight : 0;
 
+
+    // 写入聊天记录
     this.$bus.$on(
       "chatview_update_chatArr_to_chatcontent",
       (newChatArr: Array<ChatBoxtype>) => {
         if (newChatArr) this.chatArr = [...newChatArr];
-        // 第一次进入页面时滚动到页面底部
+        // 进入页面时滚动到页面底部
         this.$nextTick(() => {
           if (ele) {
-            console.log(ele.scrollHeight);
             ele.scrollTop = ele.scrollHeight;
           }
         });
       }
     );
+
+    // 写入实时聊天消息
     this.$bus.$on(
       "chatview_send_chat_data_to_chatcontent",
       (data: ChatBoxtype) => {
         this.chatArr.push(data);
       }
     );
+
   }
 
   updated() {
@@ -116,17 +135,16 @@ export default class Chat_content extends Vue {
   routerhandle(e: Route) {
     let ele: HTMLElement | null = document.getElementById("sw_chat_content");
     // 解决 IOS 滚动僵住的问题
-    if (e.name == "ChatView") {
-      
+    if (e.name == "ChatView") {  
       if (ele) ele.scrollTop = 1;
-      // 清理 this.chatArr
-      // this.chatArr = []
     } {
+      // 切换回本页面时自动滚动到底部
       ele? ele.scrollTop = ele.scrollHeight : ''
     }
   }
 
   beforeDestroy() {
+    // 离开页面时清理计时器
     clearTimeout(this.timer);
   }
 }
