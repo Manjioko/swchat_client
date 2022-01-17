@@ -3,15 +3,17 @@ module.exports = {
     pwa: {
         name: "swchat",
         themeColor: '#ffff',
-        // appleMobileWebAppCapable: "yes",
-        // appleMobileWebAppStatusBarStyle: "black",
-        // workboxPluginMode: "InjectManifest",
-        // workboxOptions: {
-        //     // swSrc is required in InjectManifest mode.
-        //     swSrc: "./src/service-worker.js",
-        // }
+        // pwa设置，可不使用 - start
+        appleMobileWebAppCapable: "yes",
+        appleMobileWebAppStatusBarStyle: "#ffff",
+        workboxPluginMode: "InjectManifest",
+        workboxOptions: {
+            // swSrc is required in InjectManifest mode.
+            swSrc: "./public/service-worker.js",
+        }
+        // - end
     },
     devServer: {
-        proxy: 'http://203.174.57.179:3000'
+        proxy: 'https://www.swchat.xyz:3000'
     }
 }

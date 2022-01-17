@@ -59,8 +59,9 @@ export default class LoginView extends Vue {
             this.$store.setLocalUsername(this.username)
             this.$store.setLocalPassword(this.password)
             this.$store.setLocalUserid(userid)
+            // this.$router.replace("/home");
+            this.$router.go(0);
             alert(`用户 ${this.username} 创建成功`)
-            this.$router.replace("/home");
             // websocketListener(this,userid)
           }
           // 账号密码正确
@@ -68,7 +69,8 @@ export default class LoginView extends Vue {
             this.$store.setLocalUsername(this.username)
             this.$store.setLocalPassword(this.password)
             this.$store.setLocalUserid(userid)
-            this.$router.replace("/home");
+            // this.$router.replace("/home");
+            this.$router.go(0);
             // websocketListener(this,userid)
           }
           // 账号或密码错误

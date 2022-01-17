@@ -47,10 +47,8 @@
         </div>
           <!-- remark end -->
         </div>
-        <!-- deleted end -->
       </div>
     </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -283,7 +281,6 @@ export default class Chat_content extends Vue {
       })
       .then((response: any) => {
         this.userArr = response.data;
-        console.log(response.data);
         this.$db.saveContactListDataToDB(response.data);
         // 建立好友房连接
         let createRoomidArr = [];
@@ -403,6 +400,7 @@ export default class Chat_content extends Vue {
   .sw-contactlist-delete-outlayout-class {
     width: 60px;
     height: 8vh;
+    min-height: 60px;
     background: red;
     overflow: hidden;
     text-overflow: ellipsis;

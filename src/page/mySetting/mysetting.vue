@@ -4,9 +4,7 @@
       <div class="sw-mysetting-settingbar-class">
         <div class="sw-mysetting-avatar-class">
           <s-avatar
-            :sSrc="
-              avatarPath
-            "
+            :sSrc="avatarPath"
             :sWidth="80"
             :sHeight="80"
             ref="sw_mysetting_avatar"
@@ -25,7 +23,7 @@
         </div>
         <div class="sw-mysetting-id-class">
           <span>ID: </span>
-          <span>{{userid}}</span>
+          <span>{{ userid }}</span>
         </div>
       </div>
       <!-- collect -->
@@ -65,6 +63,19 @@
           />
         </div>
       </div>
+
+      <!-- logout -->
+      <div class="sw-mysetting-setting-class" @click="logoutHandle">
+        <div class="sw-mysetting-bar-start">
+          <img
+            :src="require('../../assets/logout.png')"
+            alt="setting
+            "
+            class="sw-mysetting-img-class"
+          />
+        </div>
+        <div class="sw-mysetting-bar-middle">退出</div>
+      </div>
     </div>
   </div>
 </template>
@@ -89,29 +100,33 @@ export default class Chat_content extends Vue {
       console.log(file);
       const formData = new FormData();
       formData.append("key", ele.files[0]);
-      formData.append("userid",this.userid)
+      formData.append("userid", this.userid);
       this.$axios
         .post(this.$api.test, formData)
         .then((response: any) => {
-          console.log(response.data);
-          let ok = response.data.success
-          if(ok){
-            this.avatarPath = this.avatarPath+"?t=" + Math.random()
-           
+          let ok = response.data.success;
+          if (ok) {
+            this.avatarPath = this.avatarPath + "?t=" + Math.random();
           }
         })
         .catch(function (error: any) {
           console.log(error);
         });
-
     }
   }
   private handleGotoChatContent() {
     // this.$router.push("/chatview");
   }
 
+  private logoutHandle() {
+    this.$store.setLocalUsername("");
+    this.$store.setLocalPassword("");
+    this.$store.setLocalUserid("");
+    this.$router.replace('/');
+    // window.reload()
+  }
+
   beforeCreate() {
-    
     // let reader = new FileReader();
     // reader.onload = (e: any) => {
     //   this.avatarPath = e.target.result;
@@ -122,8 +137,7 @@ export default class Chat_content extends Vue {
   }
   created() {}
   beforeMount() {}
-  mounted() {
-  }
+  mounted() {}
 }
 </script>
 

@@ -8,7 +8,7 @@ class ApiUrl {
     remarkFriend: string;
     constructor() {
         // http://203.174.57.179:3000/
-        this.rootUrl = "http://203.174.57.179:3000"
+        this.rootUrl = "https://www.swchat.xyz:3000"
         // /test
         this.test = `${this.rootUrl}/test`
         // /getfriend

@@ -1,30 +1,34 @@
 <template>
   <div class="home">
-      <topbar :username="username">
-        <div class="home-topbar-extend-component">
-          <div class="home-topbar-extend-component-adddiv" v-show="showaddPlus">
-            <img :src="require('../assets/addplus.png')" alt="addplus">
-          </div>
-          <div class="home-topbar-extend-component-adddiv" v-show="showadd" @click="goToGetFriendView">
-            <img :src="require('../assets/add.png')" alt="add">
-          </div>
+    <topbar :username="username">
+      <div class="home-topbar-extend-component">
+        <div class="home-topbar-extend-component-adddiv" v-show="showaddPlus">
+          <img :src="require('../assets/addplus.png')" alt="addplus" />
         </div>
-      </topbar>
-      <userlist v-show="togglePageArr[0]" />
-      <contactlist v-show="togglePageArr[1]" />
-      <mysetting v-show="togglePageArr[2]" />
-      <bottombar @bartoggle="handleBarToggleProp" />
+        <div
+          class="home-topbar-extend-component-adddiv"
+          v-show="showadd"
+          @click="goToGetFriendView"
+        >
+          <img :src="require('../assets/add.png')" alt="add" />
+        </div>
+      </div>
+    </topbar>
+    <userlist v-show="togglePageArr[0]" />
+    <contactlist v-show="togglePageArr[1]" />
+    <mysetting v-show="togglePageArr[2]" />
+    <bottombar @bartoggle="handleBarToggleProp" />
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import userlist from "@/page/userList/userlist.vue"
+import userlist from "@/page/userList/userlist.vue";
 import topbar from "@/components/topBar/topbar.vue";
-import bottombar from "@/components/bottomBar/bottombar.vue"
-import contactlist from "@/page/contactsList/contactslist.vue"
-import mysetting from "@/page/mySetting/mysetting.vue"
-import websocketListener from "@/websocket/websocketListener"
+import bottombar from "@/components/bottomBar/bottombar.vue";
+import contactlist from "@/page/contactsList/contactslist.vue";
+import mysetting from "@/page/mySetting/mysetting.vue";
+import websocketListener from "@/websocket/websocketListener";
 
 @Component({
   components: {
@@ -32,62 +36,47 @@ import websocketListener from "@/websocket/websocketListener"
     topbar,
     bottombar,
     contactlist,
-    mysetting
+    mysetting,
   },
 })
 export default class Home extends Vue {
   private togglePageArr: Array<Boolean> = [true, false, false];
-  private username: string = "燕语"
-  private showadd: boolean = false
-  private showaddPlus: boolean = true
+  private username: string = "燕语";
+  private showadd: boolean = false;
+  private showaddPlus: boolean = true;
   private avatarPath: string = "";
   private handleBarToggleProp(t: Array<Boolean>) {
-    this.togglePageArr = t
-    if(t[0]) {
-      this.username = "燕语"
-      this.showadd = false
-      this.showaddPlus = true   
+    this.togglePageArr = t;
+    if (t[0]) {
+      this.username = "燕语";
+      this.showadd = false;
+      this.showaddPlus = true;
     } else if (t[1]) {
-      this.username = "通讯录"
-      this.showaddPlus = false
-      this.showadd = true
+      this.username = "通讯录";
+      this.showaddPlus = false;
+      this.showadd = true;
     } else {
-      this.username = "我"
-      this.showaddPlus = false
-      this.showadd = false
+      this.username = "我";
+      this.showaddPlus = false;
+      this.showadd = false;
     }
   }
   private goToGetFriendView() {
-    this.$router.push("/getfriend")
+    this.$router.push("/getfriend");
   }
   beforeCreate() {
-    let userid: string = this.$store.getLocalUserid() as string;
-    websocketListener(this,userid)
+    let username = this.$store.getLocalUsername();
+    let id = this.$store.getLocalUserid();
+    if (!username || !id) {
+      this.$router.replace("/");
+    } else {
+      let userid: string = this.$store.getLocalUserid() as string;
+      websocketListener(this, userid);
+    }
   }
   updated() {}
   // mounted() {}
-  mounted() {
-    // let userid: string = localStorage.getItem("userid") ?? "";
-    // let picUrl: string = `/public/${userid}/avatar/${userid}_avatar.jpg`;
-    // this.$axios
-    //   .get(picUrl, { responseType: "blob", emulateJSON: true })
-    //   .then((res: any) => {
-    //     if (res.data) {
-    //       // return Promise.resolve(res.data);
-    //       this.avatarPath = window.URL.createObjectURL(res.data)
-    //       localStorage.setItem("avatarPath",this.avatarPath)
-    //     } else {
-    //       this.avatarPath = require('../assets/default_avatar.png')
-    //       localStorage.setItem("avatarPath",this.avatarPath)
-    //       // throw res;
-    //     }
-    //   })
-    //   .catch((err: any) => {
-    //     this.avatarPath = require('../assets/default_avatar.png')
-    //     localStorage.setItem("avatarPath",this.avatarPath)
-    //     console.log(err)
-    //   });
-  }
+  mounted() {}
 }
 </script>
 
