@@ -27,7 +27,7 @@
             </div>
 
             <div class="sw-contactslist-text-class">
-              <div>{{ user.username }}</div>
+              <div>{{ user.alias ? user.alias : user.username }}</div>
             </div>
           </div>
 
@@ -133,7 +133,7 @@ export default class Chat_content extends Vue {
         eleClassList.includes("sw-contactlist-delete-outlayout-class") ||
         eleClassList.includes("sw-contactlist-delete-text-class");
       let isright = isRightRemarkEle || isRightDeleteEle;
-      
+
       // 设置过渡效果
       if (this.tmpDivTarget?.style && !isright) {
         this.tmpDivTarget.style.transitionDuration = "0.5s";
@@ -283,7 +283,8 @@ export default class Chat_content extends Vue {
       })
       .then((response: any) => {
         this.userArr = response.data;
-        console.log(this.userArr);
+        console.log(response.data);
+        this.$db.saveContactListDataToDB(response.data);
         // 建立好友房连接
         let createRoomidArr = [];
         for (const fr of response.data) {
@@ -299,8 +300,11 @@ export default class Chat_content extends Vue {
           createRoomidArr
         );
       })
-      .catch((error: any) => {
+      .catch(async (error: any) => {
         console.log(error);
+        // 断线或者其他问题就从数据库拿联系人数据
+        let data = await this.$db.getContactListDataFromDB();
+        this.userArr = data["list"];
       });
   }
 
@@ -310,6 +314,14 @@ export default class Chat_content extends Vue {
       "getfriend_refresh_page_contactslist",
       (addfriend: boolean) => {
         if (addfriend) {
+          this.postHanle();
+        }
+      }
+    );
+    this.$bus.$on(
+      "remark_need_to_refresh_contactlist_contactlist",
+      (isSuccess: boolean) => {
+        if (isSuccess) {
           this.postHanle();
         }
       }
@@ -383,6 +395,7 @@ export default class Chat_content extends Vue {
     // align-items: center;
     width: 100vw;
     height: 8vh;
+    min-height: 60px;
     // background: cadetblue;
     border-bottom: 1px solid #e0dfdf;
     position: relative;

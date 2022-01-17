@@ -49,6 +49,13 @@ export default class remarkFriend extends Vue {
         })
         .then((response: any) => {
             console.log(response.data)
+            if(response.data) {
+              this.$bus.$emit("remark_need_to_refresh_contactlist_contactlist",true)
+              alert("修改备注成功!")
+              this.$router.go(-1)
+            } else {
+              alert("修改备注失败!")
+            }
         })
         .catch((error: any) => {
           console.log(error);
