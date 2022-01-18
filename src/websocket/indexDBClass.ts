@@ -267,7 +267,8 @@ export default class indexDB {
                 if (result) {
                     console.log("清除user list红点。")
                     if (result.userlist) {
-                        result.userlist[clientid].unreadchatNumber = 0
+                        if(result.userlist[clientid])
+                            result.userlist[clientid].unreadchatNumber = 0
                     }
                     store.put(result)
                 }
