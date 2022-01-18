@@ -88,6 +88,12 @@ export default class Chat_content extends Vue {
   // 用于从userObject删除client数据的缓存clientid
   private clientid: string = "";
 
+  // 更新用户信息到usrlist
+  @Watch("userArr")
+  userArrChangedHandle() {
+    this.$bus.$emit("contactlist_send_userArr_data_to_userlist",[...this.userArr])
+  }
+
   // 手指触碰到list时触发这个函数
   private touchstartHandle(event: TouchEvent) {
     this.touchStartX = event.touches[0].clientX;
@@ -262,7 +268,6 @@ export default class Chat_content extends Vue {
   }
 
   private remarkHandle(clientid: string, clientname: string) {
-    console.log("hello");
     // 设置clientid
     this.$store.setLocalClientid(clientid);
     // 设置clientName
@@ -275,13 +280,14 @@ export default class Chat_content extends Vue {
   }
 
   private postHanle() {
+    let userid: string = this.$store.getLocalUserid()
     this.$axios
       .post(this.$api.getMyfriendList, {
-        userid: this.$store.getLocalUserid(),
+        userid: userid,
       })
       .then((response: any) => {
         this.userArr = response.data;
-        this.$db.saveContactListDataToDB(response.data);
+        this.$db.saveContactListDataToDB(userid,response.data);
         // 建立好友房连接
         let createRoomidArr = [];
         for (const fr of response.data) {
@@ -300,7 +306,7 @@ export default class Chat_content extends Vue {
       .catch(async (error: any) => {
         console.log(error);
         // 断线或者其他问题就从数据库拿联系人数据
-        let data = await this.$db.getContactListDataFromDB();
+        let data = await this.$db.getContactListDataFromDB(userid);
         this.userArr = data["list"];
       });
   }

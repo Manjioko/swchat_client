@@ -38,7 +38,7 @@
           </div>
 
           <div class="sw-userlist-text-class">
-            <div>{{ item.clientname }}</div>
+            <div>{{ item.alias ? item.alias : item.clientname}}</div>
             <div class="sw-userlist-chatcontent-class">
               {{ item.lastContent }}
             </div>
@@ -89,6 +89,9 @@ export default class Chat_content extends Vue {
   // 如果存在多个,就先还原之前移动的元素
   private tmpDivTarget: HTMLElement | null = null;
 
+  // 好友列表信息
+  private userListData: Array<any> = []
+
   // 路由锁
   private canRoute: boolean = true;
 
@@ -122,7 +125,7 @@ export default class Chat_content extends Vue {
     this.touchStartX = event.touches[0].clientX;
     this.divTarget = event.target as HTMLElement;
 
-    // 定位元素到 sw-contactslist-outLevel-class 
+    // 定位元素到 sw-contactslist-outLevel-class
     while (
       this.divTarget &&
       ![...this.divTarget.classList].includes("sw-userlist-outLevel-class")
@@ -130,7 +133,9 @@ export default class Chat_content extends Vue {
       this.divTarget = this.divTarget?.parentElement as HTMLElement;
     }
     // 获取this.divTarget.style.left 值
-    let w: string = this.divTarget?.style.left ? this.divTarget?.style.left: "0";
+    let w: string = this.divTarget?.style.left
+      ? this.divTarget?.style.left
+      : "0";
     if (parseInt(w) !== 0) {
       // 锁死路由
       this.canRoute = false;
@@ -210,7 +215,9 @@ export default class Chat_content extends Vue {
     }
 
     // 导航到chatview
-    let w: string = this.divTarget?.style.left ? this.divTarget?.style.left : "0px";
+    let w: string = this.divTarget?.style.left
+      ? this.divTarget?.style.left
+      : "0px";
 
     // 缓存left不为零的元素
     if (parseInt(w)) {
@@ -220,6 +227,9 @@ export default class Chat_content extends Vue {
     // 判断路由锁
     if (this.canRoute) {
       this.handleGotoChatContent(clientname, clientid, roomid, key);
+      // 清除数据库中未读消息
+      let myid = this.$store.getLocalUserid();
+      this.$db.clearUserListRedDotFromDB(myid, clientid);
     }
     // 解开路由锁
     this.canRoute = true;
@@ -269,7 +279,7 @@ export default class Chat_content extends Vue {
             body: chatBox.content,
             icon: chatBox.avatar,
           });
-          // 权限不允许
+        // 权限不允许
       } else if (window.Notification.permission === "denied") {
         console.log("用户拒绝通知");
       } else {
@@ -310,6 +320,13 @@ export default class Chat_content extends Vue {
         }
       }
     );
+    // 好友列表更新信息
+    this.$bus.$on("contactlist_send_userArr_data_to_userlist",(userlist:Array<any>) => {
+      // 昵称更新
+      for (const key in this.userObject) {
+        this.$set(this.userObject[key],'alias',userlist.find(e => e.userid === key)?.alias)
+      }
+    })
   }
 
   // 创建userobject数据
@@ -320,9 +337,14 @@ export default class Chat_content extends Vue {
       // 判断clientid是否存在于userObject,存在就修改content
       if (this.userObject[clientid]) {
         this.userObject[clientid].lastContent = chatBox.content;
-        this.$db.saveUserListDataToDB(clientid, this.userObject[clientid]);
+        this.$db.saveUserListDataToDB(
+          chatBox.myid,
+          clientid,
+          this.userObject[clientid]
+        );
       } else {
         // 否则新创建一个obj
+        // let aliasObject = this.userListData.find(e => e.username === chatBox.clientname)
         let obj = {
           clientname: chatBox.clientname,
           clientid: chatBox.clientid,
@@ -330,11 +352,12 @@ export default class Chat_content extends Vue {
           lastContent: chatBox.content,
           unreadchatNumber: 0,
           roomid: chatBox.roomid,
+          // alias: aliasObject?.alias
         };
         // 添加状态到userObject
         this.$set(this.userObject, clientid, obj);
         // 保存状态到数据库
-        this.$db.saveUserListDataToDB(clientid, obj);
+        this.$db.saveUserListDataToDB(chatBox.myid, clientid, obj);
       }
     } else {
       // 这里是他人发送消息处理
@@ -346,9 +369,14 @@ export default class Chat_content extends Vue {
         // 计算总红点数
         this.reddot += 1;
         // 保存状态到数据库
-        this.$db.saveUserListDataToDB(clientid, this.userObject[clientid]);
+        this.$db.saveUserListDataToDB(
+          chatBox.clientid,
+          clientid,
+          this.userObject[clientid]
+        );
       } else {
         // 新创建一个obj
+        // let aliasObject = this.userListData.find(e => e.username === chatBox.myname)
         let obj = {
           clientname: chatBox.myname,
           clientid: chatBox.myid,
@@ -356,11 +384,12 @@ export default class Chat_content extends Vue {
           lastContent: chatBox.content,
           unreadchatNumber: 1,
           roomid: chatBox.roomid,
+          // alias:aliasObject?.alias
         };
         // 添加状态到userObject
         this.$set(this.userObject, clientid, obj);
         // 保存状态到数据库
-        this.$db.saveUserListDataToDB(clientid, obj);
+        this.$db.saveUserListDataToDB(chatBox.clientid, clientid, obj);
         // 计算总红点数
         this.reddot += 1;
       }
@@ -372,7 +401,9 @@ export default class Chat_content extends Vue {
     if (ele) ele.scrollTop = parseInt(sessionStorage.getItem("st") ?? "1");
 
     // 首次加载需要加载userlist数据库
-    let data = await this.$db.getUserListDataFromDB();
+    let data = await this.$db.getUserListDataFromDB(
+      this.$store.getLocalUserid()
+    );
     for (const key in data) {
       if (key !== "userlist" && key !== "indexDBId") {
         if (data[key].unreadchatNumber) {

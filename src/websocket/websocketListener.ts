@@ -9,16 +9,27 @@ const chatTmpData: any = {}
 // 给数组挂上代理,监听数组变化
 // 数组变化则需要通知userlist组件作出改变
 function proxyArray(vue: Vue): Array<ChatBoxtype> {
+    let myid: string = vue.$store.getLocalUserid()
     return new Proxy([], {
         get: function (target, key) {
             return Reflect.get(target, key);
         },
         set: function (target, key, value) {
             if (value?.roomid) {
+                // userlist 界面显示需要数据
                 vue.$bus.$emit("websocketListener_send_chatbox_to_userlist", value)
-                vue.$db.updateDataToDB(value.roomid,value)
+                // 重发消息不记录到数据库
+                if(!value.unsucess) {
+                    // 正常无断线聊天
+                    vue.$db.updateDataToDB(myid,value.roomid,value)
+                } else if(!value.self && value.unsucess) {
+                    // 聊天对象的断线重发
+                    delete value.unsucess
+                    vue.$db.updateDataToDB(myid,value.roomid,value)
+                }
             }
-            return Reflect.set(target, key, value);
+            // return Reflect.set(target, key, value);
+            return true
         }
     });
 }
@@ -36,6 +47,7 @@ export default function websocketListener(vue: Vue, userid: string) {
 
 function handleBus(vue: Vue, socket: Socket) {
 
+    let myid: string = vue.$store.getLocalUserid()
     //将全部好友加入私聊房间
     vue.$bus.$on("contantslist_join_all_friends_to_private_room_websocketListener", (roomidArr: Array<string>) => {
         // 服务器创建私聊关键字是 createPrivateChatRoom
@@ -44,7 +56,7 @@ function handleBus(vue: Vue, socket: Socket) {
         for (const room of roomidArr) {
             if (!chatTmpData[room]) {
                 chatTmpData[room] = proxyArray(vue)
-                vue.$db.addDataToDB(room)
+                vue.$db.addDataToDB(myid,room)
             }
         }
     })
@@ -56,7 +68,13 @@ function handleBus(vue: Vue, socket: Socket) {
         // 发往websocket server
         let gotoServerChatBox = JSON.parse(JSON.stringify(chatBox));
         gotoServerChatBox.self = false;
-        socket.emit("privateChat", gotoServerChatBox)
+        socket.emit("privateChat", gotoServerChatBox,(result:any) => {
+            if(result) {
+                console.log(result)
+                // 发往服务器消息成功回执，送回chatcontent
+                vue.$bus.$emit("websocketListener_verify_success_data_from_server_chatcontent",gotoServerChatBox)
+            }
+        })
 
     })
 
@@ -64,7 +82,7 @@ function handleBus(vue: Vue, socket: Socket) {
     vue.$bus.$on("chatview_get_chat_tmp_websocketListener", async (roomid: string) => {
         // let chatBoxArr = chatTmpData[roomid] as Array<ChatBoxtype>
         // 从数据库读取聊天信息
-        let chatBoxArr:Array<ChatBoxtype> = await vue.$db.getDataFromDB(roomid)
+        let chatBoxArr:Array<ChatBoxtype> = await vue.$db.getDataFromDB(myid,roomid)
         if(chatBoxArr) {
             vue.$bus.$emit("websocketListener_send_updated_chat_tmp_chatview", chatBoxArr)
         }

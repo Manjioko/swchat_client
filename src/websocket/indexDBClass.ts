@@ -36,9 +36,10 @@ export default class indexDB {
                             autoIncrement: true
                         })
 
-                        store.createIndex('roomid', 'roomid', { unique: true })
-                        store.createIndex('userlist', 'userlist', { unique: true })
-                        store.createIndex('contactlist', 'contactlist', { unique: true })
+                        // store.createIndex('roomid', 'roomid', { unique: true })
+                        // store.createIndex('userlist', 'userlist', { unique: true })
+                        // store.createIndex('contactlist', 'contactlist', { unique: true })
+                        store.createIndex('myid', 'myid', { unique: true })
                         console.log("swchat_msg_test001 创建成功")
                     }
                 }
@@ -65,26 +66,27 @@ export default class indexDB {
         return db
     }
 
-    private addDataToDB(roomid: string) {
+    private addDataToDB(myid: string) {
         this.dbPromise.then(db => {
             let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
             let store = tr.objectStore('swchat_msg_test001')
 
-            let index = store.index("roomid")
-            let getRoomMSG = index.get(roomid)
+            let index = store.index("myid")
+            let getRoomMSG = index.get(myid)
             getRoomMSG.onsuccess = (e: any) => {
                 let result = e.target.result;
                 if (result) {
-                    console.log("getRoomMSG 已存在值")
+                    // console.log("getRoomMSG 已存在值")
+                    // console.log(result)
                 } else {
-                    console.log("getRoomMSG 不存在值, 即将写入数据")
-                    let request = store.add({ roomid: roomid, chatBox: [] })
+                    // console.log("getRoomMSG 不存在值, 即将写入数据")
+                    let request = store.add({ myid: myid })
                     request.onsuccess = (event) => {
-                        console.log(`${roomid} 数据写入成功`);
+                        console.log(`${myid} 数据写入成功`);
                     };
 
                     request.onerror = (event) => {
-                        console.log(`${roomid} 数据写入失败`);
+                        console.log(`${myid} 数据写入失败`);
                     }
 
                 }
@@ -99,18 +101,24 @@ export default class indexDB {
         })
     }
 
-    private updateDataToDB(roomid: string, chatBox: ChatBoxtype) {
+    private updateDataToDB(myid: string, roomid: string, chatBox: ChatBoxtype) {
         this.dbPromise.then(db => {
             let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
             let store = tr.objectStore('swchat_msg_test001')
 
-            let index = store.index("roomid")
-            let getRoomMSG = index.get(roomid)
+            let index = store.index("myid")
+            let getRoomMSG = index.get(myid)
             getRoomMSG.onsuccess = function (e: any) {
                 let result = e.target.result;
                 if (result) {
                     console.log("updateDataToDB getRoomMSG 已存在值,即将更新chatBox")
-                    result.chatBox.push(chatBox)
+                    if (result[roomid]) {
+                        result[roomid].push(chatBox)
+                    } else {
+                        result[roomid] = []
+                        result[roomid].push(chatBox)
+                    }
+                    // result.chatBox.push(chatBox)
                     store.put(result)
                 } else {
                     console.log("updateDataToDB getRoomMSG 不存在值")
@@ -126,13 +134,13 @@ export default class indexDB {
         })
     }
 
-    private getDataFromDB(roomid: string,chatLen?:number): Promise<any> {
+    private getDataFromDB(myid: string, roomid: string, chatLen?: number): Promise<any> {
         return new Promise((resolve, reject) => {
             this.dbPromise.then(db => {
                 let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
                 let store = tr.objectStore('swchat_msg_test001')
-                let index = store.index("roomid")
-                let getRoomMSG = index.get(roomid)
+                let index = store.index("myid")
+                let getRoomMSG = index.get(myid)
                 getRoomMSG.onsuccess = (e: any) => {
                     let result = e.target.result;
                     if (result) {
@@ -141,17 +149,17 @@ export default class indexDB {
                         // 每次返回20条消息
                         let len = 20
                         // 聊天消息的总长度
-                        let chatboxLen = chatLen ? result.chatBox.length - chatLen - 1 : result.chatBox.length - 1
-                        console.log("cahtboxlen is: " + chatboxLen)
-
+                        let roomidChatLen:number = result[roomid]?.length ?? 0
+                        let chatboxLen = chatLen ? roomidChatLen - chatLen - 1 : roomidChatLen - 1
                         // 获取20条消息放入somechat中
-                        while(len > 0 && chatboxLen >= 0) {
-                            let data = result.chatBox[chatboxLen]
-                            if(data) {
+                        while (len > 0 && chatboxLen >= 0) {
+                            // let data = result.chatBox[chatboxLen]
+                            let data = result[roomid][chatboxLen]
+                            if (data) {
                                 someChat.unshift(data)
                             }
-                            len --
-                            chatboxLen --
+                            len--
+                            chatboxLen--
                         }
                         // 返回someChat
                         resolve(someChat)
@@ -170,24 +178,30 @@ export default class indexDB {
         })
     }
 
-    private saveUserListDataToDB(clientid:string,listObject:any) {
+    private saveUserListDataToDB(myid: string, clientid: string, listObject: any) {
         this.dbPromise.then(db => {
             let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
             let store = tr.objectStore('swchat_msg_test001')
 
-            let index = store.index("userlist")
-            let getRoomMSG = index.get('userlist')
+            let index = store.index("myid")
+            let getRoomMSG = index.get(myid)
             getRoomMSG.onsuccess = function (e: any) {
                 let result = e.target.result;
                 if (result) {
                     console.log("saveUserListDataToDB,即将更新listObject")
                     // result.chatBox.push(chatBox)
-                    result[clientid] = listObject
+                    if (result.userlist) {
+                        result.userlist[clientid] = listObject
+                    } else {
+                        result.userlist = {}
+                        result.userlist[clientid] = listObject
+                    }
+                    // result[clientid] = listObject
                     store.put(result)
                 } else {
                     console.log("saveUserListDataToDB 不存在值")
-                    let newstore:any = {}
-                    newstore['userlist'] = 'userlist'
+                    let newstore: any = {}
+                    newstore.myid = myid
                     newstore[clientid] = listObject
                     store.add(newstore)
                 }
@@ -202,54 +216,91 @@ export default class indexDB {
         })
     }
 
-    private getUserListDataFromDB():Promise<any> {
-        return new Promise((resolve,reject) => {
+    private getUserListDataFromDB(myid: string): Promise<any> {
+        return new Promise((resolve, reject) => {
             this.dbPromise.then(db => {
                 let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
                 let store = tr.objectStore('swchat_msg_test001')
-    
-                let index = store.index("userlist")
-                let getRoomMSG = index.get('userlist')
+
+                let index = store.index("myid")
+                let getRoomMSG = index.get(myid)
                 getRoomMSG.onsuccess = function (e: any) {
                     let result = e.target.result;
                     if (result) {
                         console.log("saveUserListDataToDB,即将获取userlist...")
-                        resolve(result)
+                        if (result.userlist) {
+                            resolve(result.userlist)
+                        } else {
+                            resolve({})
+                        }
                     } else {
                         console.log("saveUserListDataToDB 不存在值,返回false")
                         resolve(false)
                     }
                 }
-    
+
                 getRoomMSG.onerror = (err: any) => {
                     console.log(`saveUserListDataToDB 获取失败,原因是: ${err}`)
                     reject(`saveUserListDataToDB 获取失败,原因是: ${err}`)
                 }
-    
+
             }).catch((err: any) => {
                 console.log(err)
             })
         })
     }
 
-    private saveContactListDataToDB(contactlist:Array<any>) {
+    // 修改 userList上的unreadchatNumber 为 0
+    private clearUserListRedDotFromDB(myid:string,clientid:string) {
+        this.dbPromise.then(db => {
+            // 获取 store
+            let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
+            let store = tr.objectStore('swchat_msg_test001')
+
+            // index
+            let index = store.index("myid")
+            let userlistData = index.get(myid)
+
+            // 成功操作
+            userlistData.onsuccess = function (e: any) {
+                let result = e.target.result;
+                if (result) {
+                    console.log("清除user list红点。")
+                    if (result.userlist) {
+                        result.userlist[clientid].unreadchatNumber = 0
+                    }
+                    store.put(result)
+                }
+            }
+
+            // 失败操作
+            userlistData.onerror = (err: any) => {
+                console.log(`saveUserListDataToDB 保存失败,原因是: ${err}`)
+            }
+
+        }).catch((err: any) => {
+            console.log(err)
+        })
+    }
+
+    private saveContactListDataToDB(myid: string, contactlist: Array<any>) {
         this.dbPromise.then(db => {
             let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
             let store = tr.objectStore('swchat_msg_test001')
 
-            let index = store.index("contactlist")
-            let getRoomMSG = index.get('contactlist')
+            let index = store.index("myid")
+            let getRoomMSG = index.get(myid)
             getRoomMSG.onsuccess = function (e: any) {
                 let result = e.target.result;
                 if (result) {
                     console.log("saveContactListDataToDB,即将更新contactlist")
-                    result['list'] = contactlist
+                    result.list = contactlist
                     store.put(result)
                 } else {
                     console.log("saveContactListDataToDB 不存在值,即将创建saveContactListDataToDB数据")
-                    let data:any = {}
-                    data['contactlist'] = "contactlist"
-                    data['list'] = contactlist
+                    let data: any = {}
+                    data.myid = myid
+                    data.list = contactlist
                     store.add(data)
                 }
 
@@ -264,30 +315,30 @@ export default class indexDB {
         })
     }
 
-    private getContactListDataFromDB() {
-        return new Promise((resolve,reject) => {
+    private getContactListDataFromDB(myid: string) {
+        return new Promise((resolve, reject) => {
             this.dbPromise.then(db => {
                 let tr = db.transaction(['swchat_msg_test001'], 'readwrite')
                 let store = tr.objectStore('swchat_msg_test001')
-    
-                let index = store.index("contactlist")
-                let getRoomMSG = index.get('contactlist')
+
+                let index = store.index("myid")
+                let getRoomMSG = index.get(myid)
                 getRoomMSG.onsuccess = function (e: any) {
                     let result = e.target.result;
-                    if (result) {
+                    if (result?.list) {
                         console.log("saveContactListDataToDB,即将获取contactlist...")
-                        resolve(result)
+                        resolve(result.list)
                     } else {
                         console.log("saveContactListDataToDB 不存在值,返回false")
                         resolve(false)
                     }
                 }
-    
+
                 getRoomMSG.onerror = (err: any) => {
                     console.log(`saveContactListDataToDB 获取失败,原因是: ${err}`)
                     reject(`saveContactListDataToDB 获取失败,原因是: ${err}`)
                 }
-    
+
             }).catch((err: any) => {
                 console.log(err)
             })

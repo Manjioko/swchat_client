@@ -48,7 +48,6 @@ export default class remarkFriend extends Vue {
             userid: this.$store.getLocalUserid()
         })
         .then((response: any) => {
-            console.log(response.data)
             if(response.data) {
               this.$bus.$emit("remark_need_to_refresh_contactlist_contactlist",true)
               alert("修改备注成功!")

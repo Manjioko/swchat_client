@@ -19,6 +19,18 @@
         }"
       >
         <s-chatbox :sContent="item.content" :sSelf="item.self" />
+        <!-- start reddot 消息未发送成功，这里会显示红点 -->
+        <div
+          :class="{
+            's-chatbox-extend-con-noRead-left-class': item.self,
+            's-chatbox-extend-con-noRead-right-class': !item.self,
+          }"
+          v-if="item.unsucess"
+          @click="resendHandle(item)"
+        >
+          <img :src="require('../../assets/reddot.png')" alt="send" class="s-chatbox-sending-class">
+        </div>
+        <!-- end reddot -->
       </div>
       <div
         :class="{
@@ -54,6 +66,7 @@ export default class Chat_content extends Vue {
   // 赖加载
   private async chatcontentScrollHandle(e: any) {
     let data = await this.$db.getDataFromDB(
+      this.$store.getLocalUserid(),
       this.$store.getLocalRoomid(),
       this.chatArr.length
     );
@@ -89,16 +102,22 @@ export default class Chat_content extends Vue {
         }
       } else {
         // 滚动时及时处理isLoadingShow,解决向下滚动也会出现loading图标的现象
-        this.isLoadingShow ? this.isLoadingShow = false : ''
+        this.isLoadingShow ? (this.isLoadingShow = false) : "";
       }
     };
+  }
+
+  // 消息重新发送
+  private resendHandle(chatbox:ChatBoxtype) {
+    // 删除unsuccess标识，委托chatview再将消息发往服务器
+    // delete chatbox.unsucess
+    this.$bus.$emit("chatcontent_resend_data_to_serve_chatview",chatbox)
   }
 
   mounted() {
     let ele = document.getElementById("sw_chat_content");
     // 获取聊天窗口高度
     this.orginWindowHeight = ele ? ele.scrollHeight : 0;
-
 
     // 写入聊天记录
     this.$bus.$on(
@@ -118,10 +137,32 @@ export default class Chat_content extends Vue {
     this.$bus.$on(
       "chatview_send_chat_data_to_chatcontent",
       (data: ChatBoxtype) => {
+        // 深拷贝 data
+        data = JSON.parse(JSON.stringify(data))
+        data.self ? data.unsucess = true : ''
         this.chatArr.push(data);
+        // 滚动到页面底部
+        this.$nextTick(() => {
+          if (ele && data.self) {
+            ele.scrollTop = ele.scrollHeight;
+          }
+        });
       }
     );
 
+    // 消息发送成功回执
+    this.$bus.$on(
+      "websocketListener_verify_success_data_from_server_chatcontent",
+      (data: ChatBoxtype) => {
+        // console.log(`成功发送的消息:\n`);
+        // console.log(data)
+        let result = this.chatArr.find((e) => e.time === data.time);
+        // console.log(result)
+        if (result) {
+          result.unsucess = false
+        }
+      }
+    );
   }
 
   updated() {
@@ -135,11 +176,12 @@ export default class Chat_content extends Vue {
   routerhandle(e: Route) {
     let ele: HTMLElement | null = document.getElementById("sw_chat_content");
     // 解决 IOS 滚动僵住的问题
-    if (e.name == "ChatView") {  
+    if (e.name == "ChatView") {
       if (ele) ele.scrollTop = 1;
-    } {
+    }
+    {
       // 切换回本页面时自动滚动到底部
-      ele? ele.scrollTop = ele.scrollHeight : ''
+      ele ? (ele.scrollTop = ele.scrollHeight) : "";
     }
   }
 
@@ -179,6 +221,7 @@ export default class Chat_content extends Vue {
   .s-chatbox-extend-con-class {
     display: inline-block;
     margin-right: 4.3vw;
+    position: relative;
   }
   .s-chatbox-extend-img-class {
     float: right;
@@ -191,6 +234,7 @@ export default class Chat_content extends Vue {
   .s-chatbox-extend-con-other-class {
     display: inline-block;
     margin-left: 1.4vw;
+    position: relative;
   }
   .s-chatbox-extend-img-other-class {
     float: left;
@@ -226,6 +270,19 @@ export default class Chat_content extends Vue {
     to {
       transform: rotate(180deg);
     }
+  }
+  .s-chatbox-extend-con-noRead-left-class {
+    position: absolute;
+    left: -20px;
+    top: 10px;
+  }
+  .s-chatbox-extend-con-noRead-right-class {
+    position: absolute;
+    right: -20px;
+    top: 10px;
+  }
+  .s-chatbox-sending-class {
+    width: 20px;
   }
 }
 </style>

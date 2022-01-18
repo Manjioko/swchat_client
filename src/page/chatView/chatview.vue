@@ -101,6 +101,12 @@ export default class Chat_view extends Vue {
       this.$bus.$emit("chatview_send_chat_data_to_websocketListener", chatBox);
     });
 
+    // 接受chatcontent委托将消息再发往服务器
+    this.$bus.$on("chatcontent_resend_data_to_serve_chatview",(chatBox:ChatBoxtype) => {
+      // 将消息发往服务器
+      this.$bus.$emit("chatview_send_chat_data_to_websocketListener", chatBox);
+    })
+
     // bus 监听服务器发送来的聊天信息
     this.$bus.$on(
       "websocketListener_get_other_client_chat_chatview",
