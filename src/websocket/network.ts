@@ -7,7 +7,6 @@ function network(socket: Socket, bus: Vue) {
     if (navigator.onLine) {
         console.log("网络正常")
         if (!socket.connected) {
-            // console.log(socket.connected)
             reconnect(socket, bus, "1")
         }
     } else {
@@ -38,8 +37,9 @@ function network(socket: Socket, bus: Vue) {
     })
     socket.on("disconnect", (reason) => {
         console.log("disconnect")
-        if (navigator.onLine)
+        if (navigator.onLine){
             reconnect(socket, bus, "3")
+        }
 
     });
 }
