@@ -4,10 +4,10 @@ export default function () {
     let options = {
         clientId: "manjioko",
         clean: false,
-        reconnectPeriod: 5,
+        reconnectPeriod: 0,
         username: "jioko",
         password: '1234',
-        connectTimeout: 30000,
+        connectTimeout: 3000,
     }
 
     const client = mqtt.connect('wss://www.swchat.xyz:6438',options)
@@ -23,7 +23,7 @@ export default function () {
     client.on('message', function (topic:string, message:any) {
         // message is Buffer
         console.log(message.toString())
-        client.end()
+        // client.end()
     })
 
     client.on("disconnect",function(){
@@ -36,6 +36,10 @@ export default function () {
 
     client.on("reconnect",function(){
         console.log("reconnect")
+    })
+
+    client.on("error",function(err:any){
+        console.log(err)
     })
 
     return client
