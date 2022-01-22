@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.24.0",
     "core-js": "^3.6.5",
+    "mqtt": "^4.3.4",
     "register-service-worker": "^1.7.1",
     "socket.io-client": "^4.4.1",
     "swallow-ui": "^0.1.8",

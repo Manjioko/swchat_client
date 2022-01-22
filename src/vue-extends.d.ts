@@ -7,5 +7,6 @@ declare module 'vue/types/vue' {
       readonly $api: any,
       readonly $store: any,
       readonly $db: any,
+      readonly $mqtt:any,
     }
   }
