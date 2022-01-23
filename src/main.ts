@@ -6,7 +6,7 @@ import swallowUI from 'swallow-ui'
 import ApiUrl from './utils/apiUrl'
 import storageData from './utils/storageData'
 import indexDB from './websocket/indexDBClass'
-import mqtt from './mqtt/mqttClient'
+// import mqtt from './websocket/mqttClient'
 // import websocket from './websocket/websocketConfig'
 // import websocketListener from './websocket/websocketListener'
 const axios = require('axios').default
@@ -21,7 +21,7 @@ Vue.prototype.$bus = new Vue()
 Vue.prototype.$api = new ApiUrl()
 Vue.prototype.$axios = axios
 Vue.prototype.$store = storageData
-Vue.prototype.$mqtt = mqtt()
+// Vue.prototype.$mqtt = mqtt()
 
 let vm = new Vue({
   router,
