@@ -54,7 +54,7 @@ export default function websocketListener(vue: Vue, userid: string) {
 function handleMqtt(mqtt: MqttClient, bus: Vue, userid: string) {
 
     // mqtt 订阅
-    mqtt.subscribe(userid,{ qos: 2 }, (err) => {
+    mqtt.subscribe(userid,{ qos: 1 }, (err) => {
         if (!err) {
             console.log("mqtt 订阅成功")
         } else {
@@ -65,13 +65,15 @@ function handleMqtt(mqtt: MqttClient, bus: Vue, userid: string) {
     // 正常情况下接收到的别人发送来的信息
     mqtt.on("message", (topic: any,payload,packt) => {
         console.log("收到mqtt服务器发送来的消息:")
+        let chatBox: ChatBoxtype = JSON.parse(payload.toString())
+        chatBox.self = false
         // 缓存到聊天记录列表
-        // chatTmpData[chatBox.roomid as string].push(chatBox)
+        chatTmpData[chatBox.roomid as string].push(chatBox)
         // 将消息发送回viewchat组件
-        // bus.$emit("websocketListener_get_other_client_chat_chatview", chatBox)
+        bus.$emit("websocketListener_get_other_client_chat_chatview", chatBox)
         // console.log(data)
         // console.log(abc.toString())
-        console.log(`topic is: ${topic} qos is: ${packt.qos}`)
+        console.log(`topic is: ${topic} qos is: ${packt.qos},payload is ${payload}`)
     })
 
 }
@@ -106,14 +108,13 @@ function handleMqttBus(mqtt:MqttClient,vue:Vue) {
         //         vue.$bus.$emit("websocketListener_verify_success_data_from_server_chatcontent", gotoServerChatBox)
         //     }
         // })
-
-        console.log("go to server")
-        console.log(gotoServerChatBox)
-        mqtt.publish(chatBox.clientid ?? 'nothing', JSON.stringify(chatBox),{qos:2,retain: true},(err) => {
+        mqtt.publish(chatBox.clientid ?? 'nothing', JSON.stringify(chatBox),{ qos:1 },function(err) {
             if (err) {
                 console.log(err)
               } else {
                 console.log('Published')
+                // 发往服务器消息成功回执，送回chatcontent
+                vue.$bus.$emit("websocketListener_verify_success_data_from_server_chatcontent", gotoServerChatBox)
               }
         })
 

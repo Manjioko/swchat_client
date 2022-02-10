@@ -69,14 +69,14 @@ export default class Home extends Vue {
     let id = this.$store.getLocalUserid();
     if (!username || !id) {
       this.$router.replace("/");
-    } else {
-      let userid: string = this.$store.getLocalUserid() as string;
-      websocketListener(this, userid);
     }
   }
   updated() {}
   // mounted() {}
-  mounted() {}
+  mounted() {
+    let userid: string = this.$store.getLocalUserid() as string;
+    websocketListener(this, userid);
+  }
 }
 </script>
 
