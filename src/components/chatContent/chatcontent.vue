@@ -160,6 +160,8 @@ export default class Chat_content extends Vue {
         // console.log(result)
         if (result) {
           result.unsucess = false
+          // this.$db.updateDataToDB(result.myid,result.roomid,result)
+          // vue.$db.updateDataToDB(myid, value.roomid, value)
         }
       }
     );

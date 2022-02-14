@@ -43,10 +43,13 @@ export default function websocketListener(vue: Vue, userid: string) {
     const bus: Vue = vue.$bus
     // websocket socket
     // const socket: Socket = websocketconfig(vue.$api.rootUrl, userid)
+    // network(socket, bus)
     // mqtt connect
     const mqtt: MqttClient = mqttConfig(vue.$api.mqtturl, userid, bus)
     handleMqtt(mqtt, bus, userid)
     handleMqttBus(mqtt,vue)
+    // alert("vibrate" in navigator)
+    // console.log("vibrate" in navigator)
     // handleSocket(socket, bus)
     // handleBus(vue, socket)
 }

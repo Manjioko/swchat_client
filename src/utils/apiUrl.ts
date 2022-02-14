@@ -9,7 +9,7 @@ class ApiUrl {
     mqtturl: string;
     constructor() {
         // http://203.174.57.179:3000/
-        this.rootUrl = "https://www.swchat.xyz:3000"
+        this.rootUrl = "https://www.swchat.xyz:6438"
         // /test
         this.test = `${this.rootUrl}/test`
         // /getfriend
