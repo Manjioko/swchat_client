@@ -38,13 +38,13 @@
           </div>
 
           <div class="sw-userlist-text-class">
-            <div>{{ item.alias ? item.alias : item.clientname}}</div>
+            <div>{{ item.alias ? item.alias : item.clientname }}</div>
             <div class="sw-userlist-chatcontent-class">
               {{ item.lastContent }}
             </div>
           </div>
           <div class="sw-userlist-time-class">
-            <span>上午 11:53</span>
+            <span>{{ item.time }}</span>
           </div>
         </div>
         <!-- delete -->
@@ -90,7 +90,7 @@ export default class Chat_content extends Vue {
   private tmpDivTarget: HTMLElement | null = null;
 
   // 好友列表信息
-  private userListData: Array<any> = []
+  private userListData: Array<any> = [];
 
   // 路由锁
   private canRoute: boolean = true;
@@ -321,22 +321,36 @@ export default class Chat_content extends Vue {
       }
     );
     // 好友列表更新信息
-    this.$bus.$on("contactlist_send_userArr_data_to_userlist",(userlist:Array<any>) => {
-      // 昵称更新
-      for (const key in this.userObject) {
-        this.$set(this.userObject[key],'alias',userlist.find(e => e.userid === key)?.alias)
+    this.$bus.$on(
+      "contactlist_send_userArr_data_to_userlist",
+      (userlist: Array<any>) => {
+        // 昵称更新
+        for (const key in this.userObject) {
+          this.$set(
+            this.userObject[key],
+            "alias",
+            userlist.find((e) => e.userid === key)?.alias
+          );
+        }
       }
-    })
+    );
   }
 
   // 创建userobject数据
   private buildUserObject(chatBox: ChatBoxtype) {
+    let gettime = new Date(
+      new Date("1970-01-01 08:00:00").setMilliseconds(chatBox.time)
+    ).toString();
+    let nowtime = gettime.split(" ")[4];
+
+    console.log(gettime.split(" ")[4]);
     // 判断self是否为true,是true就证明是自己发送的消息,否则就是别人发送的信息
     if (chatBox.self) {
       let clientid: string = chatBox.clientid as string;
       // 判断clientid是否存在于userObject,存在就修改content
       if (this.userObject[clientid]) {
         this.userObject[clientid].lastContent = chatBox.content;
+        this.userObject[clientid].time = nowtime;
         this.$db.saveUserListDataToDB(
           chatBox.myid,
           clientid,
@@ -352,6 +366,7 @@ export default class Chat_content extends Vue {
           lastContent: chatBox.content,
           unreadchatNumber: 0,
           roomid: chatBox.roomid,
+          time: nowtime,
           // alias: aliasObject?.alias
         };
         // 添加状态到userObject
@@ -366,6 +381,7 @@ export default class Chat_content extends Vue {
       if (this.userObject[clientid]) {
         this.userObject[clientid].lastContent = chatBox.content;
         this.userObject[clientid].unreadchatNumber += 1;
+        this.userObject[clientid].time = nowtime;
         // 计算总红点数
         this.reddot += 1;
         // 保存状态到数据库
@@ -384,6 +400,7 @@ export default class Chat_content extends Vue {
           lastContent: chatBox.content,
           unreadchatNumber: 1,
           roomid: chatBox.roomid,
+          time: nowtime,
           // alias:aliasObject?.alias
         };
         // 添加状态到userObject

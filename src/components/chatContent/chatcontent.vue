@@ -12,6 +12,9 @@
       :key="index + 'chartbox'"
       :class="{ chatboxClass: item.self, chatboxClass_other: !item.self }"
     >
+      <div class="sw-chatcontent-showTime" v-if="showtimeHandle(item.time,chatArr[index > 0 ? index - 1 : index ].time)">
+        <span>{{timeHandle(item.time)}}</span>
+      </div>
       <div
         :class="{
           's-chatbox-extend-con-class': item.self,
@@ -28,7 +31,11 @@
           v-if="item.unsucess"
           @click="resendHandle(item)"
         >
-          <img :src="require('../../assets/reddot.png')" alt="send" class="s-chatbox-sending-class">
+          <img
+            :src="require('../../assets/reddot.png')"
+            alt="send"
+            class="s-chatbox-sending-class"
+          />
         </div>
         <!-- end reddot -->
       </div>
@@ -108,10 +115,29 @@ export default class Chat_content extends Vue {
   }
 
   // 消息重新发送
-  private resendHandle(chatbox:ChatBoxtype) {
+  private resendHandle(chatbox: ChatBoxtype) {
     // 删除unsuccess标识，委托chatview再将消息发往服务器
     // delete chatbox.unsucess
-    this.$bus.$emit("chatcontent_resend_data_to_serve_chatview",chatbox)
+    this.$bus.$emit("chatcontent_resend_data_to_serve_chatview", chatbox);
+  }
+
+  private timeHandle(time:number):string {
+    let tTime = new Date(time)
+    let year = tTime.getFullYear()
+    let month = tTime.getMonth() + 1
+    let day = tTime.getDate()
+    let hour =  tTime.getHours()
+    let minutes = tTime.getMinutes()
+    return `${year} 年 ${month} 月 ${day} 日 ${hour}:${minutes}`
+  }
+
+  private showtimeHandle(nowTime:number, lastTime:number) {
+    let timeLen = nowTime - lastTime
+    timeLen > 0 ? timeLen : timeLen = -timeLen
+    if(timeLen / 60000 > 2) {
+      return true
+    }
+    return false
   }
 
   mounted() {
@@ -138,8 +164,8 @@ export default class Chat_content extends Vue {
       "chatview_send_chat_data_to_chatcontent",
       (data: ChatBoxtype) => {
         // 深拷贝 data
-        data = JSON.parse(JSON.stringify(data))
-        data.self ? data.unsucess = true : ''
+        data = JSON.parse(JSON.stringify(data));
+        data.self ? (data.unsucess = true) : "";
         this.chatArr.push(data);
         // 滚动到页面底部
         this.$nextTick(() => {
@@ -159,7 +185,7 @@ export default class Chat_content extends Vue {
         let result = this.chatArr.find((e) => e.time === data.time);
         // console.log(result)
         if (result) {
-          result.unsucess = false
+          result.unsucess = false;
           // this.$db.updateDataToDB(result.myid,result.roomid,result)
           // vue.$db.updateDataToDB(myid, value.roomid, value)
         }
@@ -231,6 +257,18 @@ export default class Chat_content extends Vue {
     image {
       -webkit-user-drag: none;
     }
+  }
+
+  .sw-chatcontent-showTime {
+    width: 100%;
+    height: 20px;
+    font-size: 14px;
+    padding-bottom: 10px;
+    color: gray;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
   }
 
   .s-chatbox-extend-con-other-class {
